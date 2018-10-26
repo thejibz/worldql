@@ -1,0 +1,33 @@
+{
+  "name": "worldql-core",
+  "version": "1.0.0",
+  "main": "worldql-core.js",
+  "repository": "https://github.com/thejibz/worldql-core.git",
+  "author": "Jean-Baptiste Roux",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/thejibz/worldql-core/issues"
+  },
+  "homepage": "https://github.com/thejibz/worldql-core#readme",
+  "dependencies": {
+    "debug": "^4.0.0",
+    "global-tunnel": "^1.2.0",
+    "graphql": "^14.0.2",
+    "oasgraph": "^0.10.1",
+    "graphql-tools": "^4.0.2",
+    "swagger-parser": "^5.0.0",
+    "swagger-to-graphql": "git+https://github.com/thejibz/swagger-to-graphql.git"
+  },
+  "devDependencies": {
+    "jest": "^23.6.0"
+  },
+  "resolutions": {
+    "tunnel": "0.0.6"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "jest": {
+    "testEnvironment": "node"
+  }
+}
