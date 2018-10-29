@@ -42,11 +42,11 @@ let WorldQL = (function () {
 
     let _buildGqlSchemaWithSwagger2GraphQL = function (gqlApi, openApiSchema) {
         // build backendUrl from infos of the openapi spec file
-        const backendUrl = openApiSchema.schemes[0] + "://" + openApiSchema.host + openApiSchema.basePath
+        const backendUrl = openApiSchema.schemes[0] + "://" + openApiSchema.host + (openApiSchema.basePath ? openApiSchema.basePath : "")
         debug("(backendUrl) %o", backendUrl)
 
         return Swagger2GraphQL(openApiSchema, backendUrl, gqlApi.headers).then(gqlSchema => {
-            return { schema: gqlSchema, schemaUrl: gqlApi.schema.url}
+            return { schema: gqlSchema, schemaUrl: gqlApi.schema.url }
         })
     }
 
