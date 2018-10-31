@@ -1,7 +1,7 @@
 {
   "name": "worldql-core",
   "version": "1.0.0",
-  "main": "worldql-core.js",
+  "main": "src/worldql-core.js",
   "repository": "https://github.com/thejibz/worldql-core.git",
   "author": "Jean-Baptiste Roux",
   "license": "MIT",
