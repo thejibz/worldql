@@ -13,12 +13,18 @@
     "debug": "^4.0.0",
     "global-tunnel": "^1.2.0",
     "graphql": "^14.0.2",
-    "oasgraph": "^0.10.1",
     "graphql-tools": "^4.0.2",
+    "oasgraph": "^0.10.1",
     "swagger-parser": "^5.0.0",
     "swagger-to-graphql": "git+https://github.com/thejibz/swagger-to-graphql.git"
   },
   "devDependencies": {
+    "coffeescript": "^2.3.2",
+    "elasticsearch": "^15.2.0",
+    "eslint": "^5.8.0",
+    "eslint-plugin-jest": "^21.26.2",
+    "graphql-compose": "^5.3.3",
+    "graphql-compose-elasticsearch": "^2.1.0",
     "jest": "^23.6.0"
   },
   "resolutions": {

@@ -1,4 +1,6 @@
 worldql-core.awl.test.js
+# babel build
+lib/
 
 # Logs
 logs

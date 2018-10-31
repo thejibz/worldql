@@ -1,4 +1,4 @@
-.PHONY : install push force_push
+.PHONY : install test push force_push
 
 install:
 	rm -f yarn.lock || true

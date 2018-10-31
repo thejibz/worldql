@@ -1,18 +1,15 @@
-process.env.DEBUG = ['worldql-core']
+process.env.DEBUG = ["worldql-core"]
 process.env.DEBUG_DEPTH = 15
 
-const globalTunnel = require('global-tunnel')
+const globalTunnel = require("global-tunnel")
 globalTunnel.initialize() // use ENV http_proxy for all requests
 
-const debug = require('debug')('worldql-stitch')
-const worldql = require('./worldql-core')
+const worldql = require("../src/worldql-core")
 
-
-describe('Test the worldql', () => {
-
-    const openAPIschemaWeather = "https://raw.githubusercontent.com/APIs-guru/openapi-directory/master/APIs/weatherbit.io/2.0.0/swagger.yaml"
-    const openAPIschemaTwitter = "https://raw.githubusercontent.com/thejibz/openapi-directory/master/APIs/twitter.com/1.1/swagger.yaml"
-    const openAPIschemaGoogle = "https://raw.githubusercontent.com/APIs-guru/openapi-directory/master/APIs/googleapis.com/customsearch/v1/swagger.yaml"
+describe("Test the worldql", () => {
+    const oasWeather = "https://raw.githubusercontent.com/APIs-guru/openapi-directory/master/APIs/weatherbit.io/2.0.0/swagger.yaml"
+    const oasTwitter = "https://raw.githubusercontent.com/thejibz/openapi-directory/master/APIs/twitter.com/1.1/swagger.yaml"
+    const oasGoogle = "https://raw.githubusercontent.com/APIs-guru/openapi-directory/master/APIs/googleapis.com/customsearch/v1/swagger.yaml"
 
     const twitterHeaders = {
         "x-oauth-v1-consumer-key": process.env.WORLDQL_TWITTER_CONSUMER_KEY,
@@ -25,9 +22,9 @@ describe('Test the worldql', () => {
     test("get a temp for Lyon", () => {
         const gqlApis = [
             {
-                schema: {
-                    url: openAPIschemaWeather,
-                    type: SCHEMA_TYPE.OpenApiSchema
+                source: {
+                    url: oasWeather,
+                    type: "OPEN_API_SPECFILE"
                 }
             }
         ]
@@ -42,25 +39,23 @@ describe('Test the worldql', () => {
         }`
 
         return worldql.exec(gqlApis, gqlQuery).then(response => {
-            expect(response).toMatchObject(
-                {
-                    "data": {
-                        "get_current_city_city_country_country": {
-                            "data": [{ "temp": expect.any(Number) }]
-                        }
+            expect(response).toMatchObject({
+                data: {
+                    get_current_city_city_country_country: {
+                        data: [{ temp: expect.any(Number) }]
                     }
                 }
-            )
+            })
         })
     })
 
     test("get a temp for Blois with OASGraph", () => {
         const gqlApis = [
             {
-                schema: {
-                    url: openAPIschemaWeather,
-                    type: SCHEMA_TYPE.OpenApiSchema,
-                    parser: SCHEMA_PARSER.OASGraph
+                source: {
+                    url: oasWeather,
+                    type: "OPEN_API_SPECFILE",
+                    converter: "OASGRAPH"
                 }
             }
         ]
@@ -75,25 +70,23 @@ describe('Test the worldql', () => {
         }`
 
         return worldql.exec(gqlApis, gqlQuery).then(response => {
-            expect(response).toMatchObject(
-                {
-                    "data": {
-                        "getCurrentCityCityCountryCountry": {
-                            "data": [{ "temp": expect.any(Number) }]
-                        }
+            expect(response).toMatchObject({
+                data: {
+                    getCurrentCityCityCountryCountry: {
+                        data: [{ temp: expect.any(Number) }]
                     }
                 }
-            )
+            })
         })
     })
 
     test("get a temp for Tours with Swagger2GraphQL", () => {
         const gqlApis = [
             {
-                schema: {
-                    url: openAPIschemaWeather,
-                    type: SCHEMA_TYPE.OpenApiSchema,
-                    parser: SCHEMA_PARSER.Swagger2GraphQL
+                source: {
+                    url: oasWeather,
+                    type: "OPEN_API_SPECFILE",
+                    converter: "SWAGGER_TO_GRAPHQL"
                 }
             }
         ]
@@ -108,23 +101,21 @@ describe('Test the worldql', () => {
         }`
 
         return worldql.exec(gqlApis, gqlQuery).then(response => {
-            expect(response).toMatchObject(
-                {
-                    "data": {
-                        "get_current_city_city_country_country": {
-                            "data": [{ "temp": expect.any(Number) }]
-                        }
+            expect(response).toMatchObject({
+                data: {
+                    get_current_city_city_country_country: {
+                        data: [{ temp: expect.any(Number) }]
                     }
                 }
-            )
+            })
         })
     })
 
     test("get a temp for Lyon with variables", () => {
         const gqlApis = [
             {
-                schema: {
-                    url: openAPIschemaWeather
+                source: {
+                    url: oasWeather
                 }
             }
         ]
@@ -143,30 +134,27 @@ describe('Test the worldql', () => {
         }`
 
         const gqlVariables = {
-            "city": "lyon",
-            "country": "france",
-            "key": process.env.WORLDQL_WEATHERBIT_KEY
+            city: "lyon",
+            country: "france",
+            key: process.env.WORLDQL_WEATHERBIT_KEY
         }
 
         return worldql.exec(gqlApis, gqlQuery, gqlVariables).then(response => {
-
-            expect(response).toMatchObject(
-                {
-                    "data": {
-                        "get_current_city_city_country_country": {
-                            "data": [{ "temp": expect.any(Number) }]
-                        }
+            expect(response).toMatchObject({
+                data: {
+                    get_current_city_city_country_country: {
+                        data: [{ temp: expect.any(Number) }]
                     }
                 }
-            )
+            })
         })
     })
 
     test("get a tweet for Lyon", () => {
         const gqlApis = [
             {
-                schema: {
-                    url: openAPIschemaTwitter
+                source: {
+                    url: oasTwitter
                 },
                 headers: twitterHeaders
             }
@@ -182,31 +170,27 @@ describe('Test the worldql', () => {
         }`
 
         return worldql.exec(gqlApis, gqlQuery).then(response => {
-
-            expect(response).toMatchObject(
-                {
-                    "data": {
-                        "get_search_tweets_json": {
-                            "statuses": expect.any(Array)
-                        }
+            expect(response).toMatchObject({
+                data: {
+                    get_search_tweets_json: {
+                        statuses: expect.any(Array)
                     }
                 }
-            )
+            })
         })
     })
 
     test("get tweet and temp for Lyon", () => {
-
         const gqlApis = [
             {
-                schema: {
-                    url: openAPIschemaTwitter
+                source: {
+                    url: oasTwitter
                 },
                 headers: twitterHeaders
             },
             {
-                schema: {
-                    url: openAPIschemaWeather
+                source: {
+                    url: oasWeather
                 }
             }
         ]
@@ -227,34 +211,30 @@ describe('Test the worldql', () => {
       }`
 
         return worldql.exec(gqlApis, gqlQuery).then(response => {
-
-            expect(response).toMatchObject(
-                {
-                    "data": {
-                        "get_search_tweets_json": {
-                            "statuses": expect.any(Array)
-                        },
-                        "get_current_city_city_country_country": {
-                            "data": [{ "temp": expect.any(Number) }]
-                        }
+            expect(response).toMatchObject({
+                data: {
+                    get_search_tweets_json: {
+                        statuses: expect.any(Array)
+                    },
+                    get_current_city_city_country_country: {
+                        data: [{ temp: expect.any(Number) }]
                     }
                 }
-            )
+            })
         })
     })
 
     test("get tweet and temp for Paris with variables", () => {
-
         const gqlApis = [
             {
-                schema: {
-                    url: openAPIschemaTwitter
+                source: {
+                    url: oasTwitter
                 },
                 headers: twitterHeaders
             },
             {
-                schema: {
-                    url: openAPIschemaWeather
+                source: {
+                    url: oasWeather
                 }
             }
         ]
@@ -274,46 +254,42 @@ describe('Test the worldql', () => {
             }
       }`
         const gqlVariables = {
-            "city": "paris",
-            "country": "france",
-            "key": process.env.WORLDQL_WEATHERBIT_KEY,
-            "result_type": "popular"
+            city: "paris",
+            country: "france",
+            key: process.env.WORLDQL_WEATHERBIT_KEY,
+            result_type: "popular"
         }
 
         return worldql.exec(gqlApis, gqlQuery, gqlVariables).then(response => {
-
-            expect(response).toMatchObject(
-                {
-                    "data": {
-                        "get_search_tweets_json": {
-                            "statuses": expect.any(Array)
-                        },
-                        "get_current_city_city_country_country": {
-                            "data": [{ "temp": expect.any(Number) }]
-                        }
+            expect(response).toMatchObject({
+                data: {
+                    get_search_tweets_json: {
+                        statuses: expect.any(Array)
+                    },
+                    get_current_city_city_country_country: {
+                        data: [{ temp: expect.any(Number) }]
                     }
                 }
-            )
+            })
         })
     })
 
     test("get tweet, temp and picture for Rennes with variables", () => {
-
         const gqlApis = [
             {
-                schema: {
-                    url: openAPIschemaTwitter
+                source: {
+                    url: oasTwitter
                 },
                 headers: twitterHeaders
             },
             {
-                schema: {
-                    url: openAPIschemaWeather
+                source: {
+                    url: oasWeather
                 }
             },
             {
-                schema: {
-                    url: openAPIschemaGoogle
+                source: {
+                    url: oasGoogle
                 }
             }
         ]
@@ -345,38 +321,34 @@ describe('Test the worldql', () => {
             }
       }`
         const gqlVariables = {
-            "city": "rennes",
-            "country": "france",
-            "key": process.env.WORLDQL_WEATHERBIT_KEY,
-            "result_type": "popular"
+            city: "rennes",
+            country: "france",
+            key: process.env.WORLDQL_WEATHERBIT_KEY,
+            result_type: "popular"
         }
 
         return worldql.exec(gqlApis, gqlQuery, gqlVariables).then(response => {
-
-            expect(response).toMatchObject(
-                {
-                    "data": {
-                        "get_search_tweets_json": {
-                            "statuses": expect.any(Array)
-                        },
-                        "get_current_city_city_country_country": {
-                            "data": [{ "temp": expect.any(Number) }]
-                        },
-                        "get_v1": {
-                            "items": expect.any(Array)
-                        }
+            expect(response).toMatchObject({
+                data: {
+                    get_search_tweets_json: {
+                        statuses: expect.any(Array)
+                    },
+                    get_current_city_city_country_country: {
+                        data: [{ temp: expect.any(Number) }]
+                    },
+                    get_v1: {
+                        items: expect.any(Array)
                     }
                 }
-            )
+            })
         })
     })
 
     test("get temp and weather's picture for Rennes with stitching", () => {
-
         const gqlApis = [
             {
-                schema: {
-                    url: openAPIschemaWeather
+                source: {
+                    url: oasWeather
                 },
                 link: {
                     inType: "get_current_cities_cities_data_items_weather",
@@ -384,7 +356,7 @@ describe('Test the worldql', () => {
                         field: {
                             name: "search",
                             type: "get_v1!",
-                            schemaUrl: openAPIschemaGoogle,
+                            schemaUrl: oasGoogle,
                             query: {
                                 name: "get_v1",
                                 params: {
@@ -397,12 +369,12 @@ describe('Test the worldql', () => {
                                         searchType: "image",
                                         num: 1
                                     },
-                                    parent: [{
-                                        q: "description"
-                                    }],
-                                    variables: {
-
-                                    }
+                                    parent: [
+                                        {
+                                            q: "description"
+                                        }
+                                    ],
+                                    variables: {}
                                 }
                             }
                         }
@@ -410,8 +382,8 @@ describe('Test the worldql', () => {
                 }
             },
             {
-                schema: {
-                    url: openAPIschemaGoogle
+                source: {
+                    url: oasGoogle
                 }
             }
         ]
@@ -445,34 +417,31 @@ describe('Test the worldql', () => {
             }
         }`
         const gqlVariables = {
-            "city": "rennes",
-            "country": "france",
-            "key": process.env.WORLDQL_WEATHERBIT_KEY,
+            city: "rennes",
+            country: "france",
+            key: process.env.WORLDQL_WEATHERBIT_KEY
         }
 
         return worldql.exec(gqlApis, gqlQuery, gqlVariables).then(response => {
-            expect(response).toMatchObject(
-                {
-                    "data": {
-                        "get_current_city_city_country_country": {
-                            "data": [{
-                                "temp": expect.any(Number),
-                                "weather": {
+            expect(response).toMatchObject({
+                data: {
+                    get_current_city_city_country_country: {
+                        data: [
+                            {
+                                temp: expect.any(Number),
+                                weather: {
                                     search: {
                                         items: expect.any(Object)
                                     }
                                 }
-                            }]
-                        },
-                        "get_v1": {
-                            "items": expect.any(Array)
-                        }
+                            }
+                        ]
+                    },
+                    get_v1: {
+                        items: expect.any(Array)
                     }
                 }
-            )
+            })
         })
     })
-
 })
-
-
