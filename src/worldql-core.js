@@ -5,7 +5,6 @@ const SwaggerToGraphQL = require("swagger-to-graphql")
 const OASGraph = require("oasgraph")
 const SwaggerParser = require("swagger-parser")
 const gqltools = require("graphql-tools")
-const elasticsearch = require("elasticsearch")
 const { elasticApiFieldConfig } = require("graphql-compose-elasticsearch")
 
 const WorldQL = (function() {
@@ -26,11 +25,8 @@ const WorldQL = (function() {
                 query: new GraphQL.GraphQLObjectType({
                     name: "Query",
                     fields: {
-                        elastic50: elasticApiFieldConfig(
-                            new elasticsearch.Client({
-                                host: gqlApi.source.url,
-                                apiVersion: "5.0"
-                            })
+                        elastic: elasticApiFieldConfig(
+                            Object.assign({}, { host: gqlApi.source.url }, gqlApi.source.params)
                         )
                     }
                 })
