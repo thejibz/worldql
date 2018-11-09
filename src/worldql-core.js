@@ -19,15 +19,26 @@ const WorldQL = (function() {
         OASGRAPH: "OASGRAPH"
     })
 
+    let _buildGqlSchemaFromGraphQL = function(gqlApi) {
+        const link = new HttpLink({ uri: gqlApi.source.url, fetch })
+
+        return gqltools.introspectSchema(link).then(schema => {
+            const gqlSchema = gqltools.makeRemoteExecutableSchema({
+                schema,
+                link
+            })
+
+            return { schema: gqlSchema, schemaUrl: gqlApi.source.url }
+        })
+    }
+
     let _buildGqlSchemaFromES = function(gqlApi) {
         return new Promise(resolve => {
             const gqlSchema = new GraphQL.GraphQLSchema({
                 query: new GraphQL.GraphQLObjectType({
                     name: "Query",
                     fields: {
-                        elastic: elasticApiFieldConfig(
-                            Object.assign({}, { host: gqlApi.source.url }, gqlApi.source.params)
-                        )
+                        elastic: elasticApiFieldConfig(Object.assign({}, { host: gqlApi.source.url }, gqlApi.source.params))
                     }
                 })
             })
@@ -68,37 +79,39 @@ const WorldQL = (function() {
     }
 
     let _buildLinks = function(gqlApi, gqlSchemas) {
-        if (gqlApi.link) {
-            const linkTypeDef = `
-            extend type ${gqlApi.link.inType} {
-                ${gqlApi.link.on.field.name}: ${gqlApi.link.on.field.type}
+        if (gqlApi.links) {
+            return gqlApi.links.map(link => {
+                const linkTypeDef = `
+            extend type ${link.inType} {
+                ${link.on.field.name}: ${link.on.field.type}
             }
         `
 
-            const resolver = {
-                [gqlApi.link.inType]: {
-                    [gqlApi.link.on.field.name]: {
-                        resolve(parentResp, args, context, info) {
-                            const linkSchema = gqlSchemas.find(s => s.schemaUrl == gqlApi.link.on.field.schemaUrl)
+                const resolver = {
+                    [link.inType]: {
+                        [link.on.field.name]: {
+                            resolve(parentResp, args, context, info) {
+                                const linkSchema = gqlSchemas.find(s => s.schemaUrl == link.on.field.schemaUrl)
 
-                            const params = gqlApi.link.on.field.query.params
+                                const params = link.on.field.query.params
 
-                            const resolver = info.mergeInfo.delegateToSchema({
-                                schema: linkSchema.schema,
-                                operation: "query",
-                                fieldName: gqlApi.link.on.field.query.name,
-                                args: Object.assign({}, params.static, _buildParentParams(parentResp, params.parent)),
-                                context,
-                                info
-                            })
+                                const resolver = info.mergeInfo.delegateToSchema({
+                                    schema: linkSchema.schema,
+                                    operation: "query",
+                                    fieldName: link.on.field.query.name,
+                                    args: Object.assign({}, params.static, _buildParentParams(parentResp, params.parent)),
+                                    context,
+                                    info
+                                })
 
-                            return resolver
+                                return resolver
+                            }
                         }
                     }
                 }
-            }
 
-            return { linkTypeDef: linkTypeDef, resolver: resolver }
+                return { linkTypeDef: linkTypeDef, resolver: resolver }
+            })
         }
     }
 
@@ -135,11 +148,15 @@ const WorldQL = (function() {
         buildGqlSchema: function(gqlApis) {
             const gqlSchemas = gqlApis.map(gqlApi => {
                 switch (gqlApi.source.type) {
+
                 case SOURCE_TYPE.OPEN_API_SPECFILE:
                     return _buildGqlSchemaFromOAS(gqlApi)
 
                 case SOURCE_TYPE.ELASTICSEARCH:
                     return _buildGqlSchemaFromES(gqlApi)
+
+                case SOURCE_TYPE.GRAPHQL:
+                    return _buildGqlSchemaFromGraphQL(gqlApi)
 
                 default:
                     return _buildGqlSchemaFromOAS(gqlApi)
@@ -152,7 +169,8 @@ const WorldQL = (function() {
 
                 gqlApis
                     .map(gqlApi => _buildLinks(gqlApi, gqlSchemas))
-                    .filter(link => link) // filter empty links
+                    .reduce((acc, param) => acc.concat(param), []) // flatMap workaround
+                    .filter(link => link != null) // filter empty links
                     .map(link => {
                         schemas.push(link.linkTypeDef)
                         resolvers.push(link.resolver)

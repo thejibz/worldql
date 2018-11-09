@@ -350,36 +350,38 @@ describe("Test the worldql", () => {
                 source: {
                     url: oasWeather
                 },
-                link: {
-                    inType: "get_current_cities_cities_data_items_weather",
-                    on: {
-                        field: {
-                            name: "search",
-                            type: "get_v1!",
-                            schemaUrl: oasGoogle,
-                            query: {
-                                name: "get_v1",
-                                params: {
-                                    static: {
-                                        cx: process.env.WORLDQL_GOOGLE_CSE_CX,
-                                        key: process.env.WORLDQL_GOOGLE_CSE_KEY,
-                                        safe: "active",
-                                        rights: "cc_publicdomain",
-                                        imgSize: "medium",
-                                        searchType: "image",
-                                        num: 1
-                                    },
-                                    parent: [
-                                        {
-                                            q: "description"
-                                        }
-                                    ],
-                                    variables: {}
+                links: [
+                    {
+                        inType: "get_current_cities_cities_data_items_weather",
+                        on: {
+                            field: {
+                                name: "search",
+                                type: "get_v1!",
+                                schemaUrl: oasGoogle,
+                                query: {
+                                    name: "get_v1",
+                                    params: {
+                                        static: {
+                                            cx: process.env.WORLDQL_GOOGLE_CSE_CX,
+                                            key: process.env.WORLDQL_GOOGLE_CSE_KEY,
+                                            safe: "active",
+                                            rights: "cc_publicdomain",
+                                            imgSize: "medium",
+                                            searchType: "image",
+                                            num: 1
+                                        },
+                                        parent: [
+                                            {
+                                                q: "description"
+                                            }
+                                        ],
+                                        variables: {}
+                                    }
                                 }
                             }
                         }
                     }
-                }
+                ]
             },
             {
                 source: {
