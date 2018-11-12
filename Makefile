@@ -12,11 +12,11 @@ push:
 	git add .
 	git status
 	git commit -m"[sync]"|| true 
-	git push -u origin master
+	git push origin master
 
 force_push:
 	$(MAKE) test
 	git add .
 	git status
 	git commit -m"[sync]"|| true 
-	git push -f -u origin master
+	git push -f origin master
