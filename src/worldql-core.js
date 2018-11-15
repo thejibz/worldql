@@ -170,7 +170,7 @@ const WorldQL = (function() {
                 gqlApis
                     .map(gqlApi => _buildLinks(gqlApi, gqlSchemas))
                     .reduce((acc, param) => acc.concat(param), []) // flatMap workaround
-                    .filter(link => link != null) // filter empty links
+                    .filter(link => !!link) // filter empty links
                     .map(link => {
                         schemas.push(link.linkTypeDef)
                         resolvers.push(link.resolver)
