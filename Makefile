@@ -4,6 +4,9 @@ install:
 	rm -f yarn.lock || true
 	yarn install
 
+playground:
+	yarn playground
+
 test:
 	yarn test
 
@@ -12,11 +15,11 @@ push:
 	git add .
 	git status
 	git commit -m"[sync]"|| true 
-	git push master
+	git push
 
 force_push:
 	$(MAKE) test
 	git add .
 	git status
 	git commit -m"[sync]"|| true 
-	git push -f master
+	git push -f

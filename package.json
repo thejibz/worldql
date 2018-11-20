@@ -10,6 +10,7 @@
   },
   "homepage": "https://github.com/thejibz/worldql-core#readme",
   "dependencies": {
+    "apollo-server": "^2.2.2",
     "debug": "^4.0.0",
     "elasticsearch": "^15.2.0",
     "global-tunnel": "^1.2.0",
@@ -30,7 +31,8 @@
     "tunnel": "0.0.6"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "playground": "node src/worldql-playground.js"
   },
   "jest": {
     "testEnvironment": "node"

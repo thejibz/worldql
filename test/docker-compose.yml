@@ -9,4 +9,4 @@ services:
       - ./setup/elasticsearch.sh:/tmp/setup/elasticsearch.sh
     ports:
       - 9200:9200
-    command: bash /tmp/setup/elasticsearch.sh
+    command: bash -c 'chmod +x /tmp/setup/elasticsearch.sh && (/tmp/setup/elasticsearch.sh&) && /docker-entrypoint.sh elasticsearch'

@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# start ES
-/docker-entrypoint.sh elasticsearch &
-
 # wait for ES to start
 chmod +x /tmp/setup/wait-for-it.sh
 /tmp/setup/wait-for-it.sh localhost:9200 --timeout=15 --strict
