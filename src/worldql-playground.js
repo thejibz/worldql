@@ -9,7 +9,10 @@ const gqlApis = [
             url: "http://localhost:9200",
             type: "ELASTICSEARCH",
             params: {
-                apiVersion: '5.0'
+                elasticIndex: "companydatabase",
+                elasticType: "employees",
+                pluralFields: ['skills', 'languages'],
+                apiVersion: "5.6"
             }
         }
     }

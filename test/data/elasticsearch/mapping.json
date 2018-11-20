@@ -1,41 +1,35 @@
 {
-    "companydatabase": {
-        "mappings": {
-            "employees": {
-                "properties": {
-                    "Address": {
-                        "type": "text"
-                    },
-                    "Age": {
-                        "type": "integer"
-                    },
-                    "DateOfJoining": {
-                        "type": "date",
-                        "format": "yyyy-MM-dd"
-                    },
-                    "Designation": {
-                        "type": "text"
-                    },
-                    "FirstName": {
-                        "type": "text"
-                    },
-                    "Gender": {
-                        "type": "text"
-                    },
-                    "Interests": {
-                        "type": "text"
-                    },
-                    "LastName": {
-                        "type": "text"
-                    },
-                    "MaritalStatus": {
-                        "type": "text"
-                    },
-                    "Salary": {
-                        "type": "integer"
-                    }
-                }
-            }
+    "properties": {
+        "Address": {
+            "type": "text"
+        },
+        "Age": {
+            "type": "integer"
+        },
+        "DateOfJoining": {
+            "type": "date",
+            "format": "yyyy-MM-dd"
+        },
+        "Designation": {
+            "type": "text"
+        },
+        "FirstName": {
+            "type": "text"
+        },
+        "Gender": {
+            "type": "text"
+        },
+        "Interests": {
+            "type": "text"
+        },
+        "LastName": {
+            "type": "text"
+        },
+        "MaritalStatus": {
+            "type": "text"
+        },
+        "Salary": {
+            "type": "integer"
         }
     }
 }

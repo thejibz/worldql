@@ -9,26 +9,31 @@ const worldql = require("../src/worldql-core")
 describe("Test the worldql for elasticsearch", () => {
     jest.setTimeout(15000)
 
-    test("get an employee", () => {
+    test("get all employees of age 33", () => {
         const gqlApis = [
             {
                 source: {
                     url: "http://localhost:9200",
                     type: "ELASTICSEARCH",
                     params: {
-                        apiVersion: '5.0'
+                        elasticIndex: "companydatabase",
+                        elasticType: "employees",
+                        pluralFields: ['skills', 'languages'],
+                        apiVersion: "5.6"
                     }
                 }
             }
         ]
 
         const gqlQuery = `
-        query {
-            __schema {
-              types {
-                name
-                fields {
-                  name
+        {
+            employee(q:"Age:33"){
+              count
+              hits {
+                _source {
+                  Age
+                  Designation
+                  Address
                 }
               }
             }
@@ -36,7 +41,12 @@ describe("Test the worldql for elasticsearch", () => {
 
         return worldql.exec(gqlApis, gqlQuery).then(response => {
             expect(response).toMatchObject({
-                data: expect.any(Object)
+                data: {
+                    employee: {
+                        count: expect.any(Number),
+                        hits: expect.any(Array)
+                    }
+                }
             })
         })
     })
