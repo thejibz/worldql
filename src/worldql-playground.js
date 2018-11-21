@@ -2,6 +2,18 @@ const worldql = require("./worldql-core")
 const { ApolloServer } = require('apollo-server')
 
 
+/* For introspection
+query {
+  __schema {
+    types {
+      name
+      fields {
+        name
+      }
+    }
+  }
+}
+*/
 
 const gqlApis = [
     {
