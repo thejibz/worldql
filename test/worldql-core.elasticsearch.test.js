@@ -18,7 +18,7 @@ describe("Test the worldql for elasticsearch", () => {
                     params: {
                         elasticIndex: "companydatabase",
                         elasticType: "employees",
-                        pluralFields: ['skills', 'languages'],
+                        pluralFields: ["skills", "languages"],
                         apiVersion: "5.6"
                     }
                 }
@@ -39,14 +39,16 @@ describe("Test the worldql for elasticsearch", () => {
             }
           }`
 
-        return worldql.exec(gqlApis, gqlQuery).then(response => {
-            expect(response).toMatchObject({
-                data: {
-                    employee: {
-                        count: expect.any(Number),
-                        hits: expect.any(Array)
+        return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
+            worldql.exec(gqlSchema, gqlQuery).then(response => {
+                expect(response).toMatchObject({
+                    data: {
+                        employee: {
+                            count: expect.any(Number),
+                            hits: expect.any(Array)
+                        }
                     }
-                }
+                })
             })
         })
     })

@@ -38,13 +38,15 @@ describe("Test the worldql", () => {
             }
         }`
 
-        return worldql.exec(gqlApis, gqlQuery).then(response => {
-            expect(response).toMatchObject({
-                data: {
-                    get_current_city_city_country_country: {
-                        data: [{ temp: expect.any(Number) }]
+        return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
+            worldql.exec(gqlSchema, gqlQuery).then(response => {
+                expect(response).toMatchObject({
+                    data: {
+                        get_current_city_city_country_country: {
+                            data: [{ temp: expect.any(Number) }]
+                        }
                     }
-                }
+                })
             })
         })
     })
@@ -69,13 +71,15 @@ describe("Test the worldql", () => {
             }
         }`
 
-        return worldql.exec(gqlApis, gqlQuery).then(response => {
-            expect(response).toMatchObject({
-                data: {
-                    getCurrentCityCityCountryCountry: {
-                        data: [{ temp: expect.any(Number) }]
+        return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
+            worldql.exec(gqlSchema, gqlQuery).then(response => {
+                expect(response).toMatchObject({
+                    data: {
+                        getCurrentCityCityCountryCountry: {
+                            data: [{ temp: expect.any(Number) }]
+                        }
                     }
-                }
+                })
             })
         })
     })
@@ -100,13 +104,15 @@ describe("Test the worldql", () => {
             }
         }`
 
-        return worldql.exec(gqlApis, gqlQuery).then(response => {
-            expect(response).toMatchObject({
-                data: {
-                    get_current_city_city_country_country: {
-                        data: [{ temp: expect.any(Number) }]
+        return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
+            worldql.exec(gqlSchema, gqlQuery).then(response => {
+                expect(response).toMatchObject({
+                    data: {
+                        get_current_city_city_country_country: {
+                            data: [{ temp: expect.any(Number) }]
+                        }
                     }
-                }
+                })
             })
         })
     })
@@ -139,13 +145,15 @@ describe("Test the worldql", () => {
             key: process.env.WORLDQL_WEATHERBIT_KEY
         }
 
-        return worldql.exec(gqlApis, gqlQuery, gqlVariables).then(response => {
-            expect(response).toMatchObject({
-                data: {
-                    get_current_city_city_country_country: {
-                        data: [{ temp: expect.any(Number) }]
+        return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
+            worldql.exec(gqlSchema, gqlQuery, gqlVariables).then(response => {
+                expect(response).toMatchObject({
+                    data: {
+                        get_current_city_city_country_country: {
+                            data: [{ temp: expect.any(Number) }]
+                        }
                     }
-                }
+                })
             })
         })
     })
@@ -169,13 +177,15 @@ describe("Test the worldql", () => {
             }
         }`
 
-        return worldql.exec(gqlApis, gqlQuery).then(response => {
-            expect(response).toMatchObject({
-                data: {
-                    get_search_tweets_json: {
-                        statuses: expect.any(Array)
+        return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
+            worldql.exec(gqlSchema, gqlQuery).then(response => {
+                expect(response).toMatchObject({
+                    data: {
+                        get_search_tweets_json: {
+                            statuses: expect.any(Array)
+                        }
                     }
-                }
+                })
             })
         })
     })
@@ -210,16 +220,18 @@ describe("Test the worldql", () => {
         }
       }`
 
-        return worldql.exec(gqlApis, gqlQuery).then(response => {
-            expect(response).toMatchObject({
-                data: {
-                    get_search_tweets_json: {
-                        statuses: expect.any(Array)
-                    },
-                    get_current_city_city_country_country: {
-                        data: [{ temp: expect.any(Number) }]
+        return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
+            worldql.exec(gqlSchema, gqlQuery).then(response => {
+                expect(response).toMatchObject({
+                    data: {
+                        get_search_tweets_json: {
+                            statuses: expect.any(Array)
+                        },
+                        get_current_city_city_country_country: {
+                            data: [{ temp: expect.any(Number) }]
+                        }
                     }
-                }
+                })
             })
         })
     })
@@ -260,16 +272,18 @@ describe("Test the worldql", () => {
             result_type: "popular"
         }
 
-        return worldql.exec(gqlApis, gqlQuery, gqlVariables).then(response => {
-            expect(response).toMatchObject({
-                data: {
-                    get_search_tweets_json: {
-                        statuses: expect.any(Array)
-                    },
-                    get_current_city_city_country_country: {
-                        data: [{ temp: expect.any(Number) }]
+        return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
+            worldql.exec(gqlSchema, gqlQuery, gqlVariables).then(response => {
+                expect(response).toMatchObject({
+                    data: {
+                        get_search_tweets_json: {
+                            statuses: expect.any(Array)
+                        },
+                        get_current_city_city_country_country: {
+                            data: [{ temp: expect.any(Number) }]
+                        }
                     }
-                }
+                })
             })
         })
     })
@@ -327,19 +341,21 @@ describe("Test the worldql", () => {
             result_type: "popular"
         }
 
-        return worldql.exec(gqlApis, gqlQuery, gqlVariables).then(response => {
-            expect(response).toMatchObject({
-                data: {
-                    get_search_tweets_json: {
-                        statuses: expect.any(Array)
-                    },
-                    get_current_city_city_country_country: {
-                        data: [{ temp: expect.any(Number) }]
-                    },
-                    get_v1: {
-                        items: expect.any(Array)
+        return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
+            worldql.exec(gqlSchema, gqlQuery, gqlVariables).then(response => {
+                expect(response).toMatchObject({
+                    data: {
+                        get_search_tweets_json: {
+                            statuses: expect.any(Array)
+                        },
+                        get_current_city_city_country_country: {
+                            data: [{ temp: expect.any(Number) }]
+                        },
+                        get_v1: {
+                            items: expect.any(Array)
+                        }
                     }
-                }
+                })
             })
         })
     })
@@ -424,25 +440,27 @@ describe("Test the worldql", () => {
             key: process.env.WORLDQL_WEATHERBIT_KEY
         }
 
-        return worldql.exec(gqlApis, gqlQuery, gqlVariables).then(response => {
-            expect(response).toMatchObject({
-                data: {
-                    get_current_city_city_country_country: {
-                        data: [
-                            {
-                                temp: expect.any(Number),
-                                weather: {
-                                    search: {
-                                        items: expect.any(Object)
+        return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
+            worldql.exec(gqlSchema, gqlQuery, gqlVariables).then(response => {
+                expect(response).toMatchObject({
+                    data: {
+                        get_current_city_city_country_country: {
+                            data: [
+                                {
+                                    temp: expect.any(Number),
+                                    weather: {
+                                        search: {
+                                            items: expect.any(Object)
+                                        }
                                     }
                                 }
-                            }
-                        ]
-                    },
-                    get_v1: {
-                        items: expect.any(Array)
+                            ]
+                        },
+                        get_v1: {
+                            items: expect.any(Array)
+                        }
                     }
-                }
+                })
             })
         })
     })

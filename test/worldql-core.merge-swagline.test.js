@@ -133,26 +133,28 @@ describe("Test the worldql", () => {
             key: process.env.WORLDQL_WEATHERBIT_KEY
         }
 
-        return worldql.exec(gqlApis, gqlQuery, gqlVariables).then(response => {
-            expect(response).toMatchObject({
-                data: {
-                    get_current_city_city_country_country: {
-                        data: [
-                            {
-                                temp: expect.any(Number),
-                                weather: {
-                                    search: {
-                                        items: expect.any(Object)
-                                    },
-                                    tweet: { statuses: expect.any(Array) } 
+        return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
+            worldql.exec(gqlSchema, gqlQuery, gqlVariables).then(response => {
+                expect(response).toMatchObject({
+                    data: {
+                        get_current_city_city_country_country: {
+                            data: [
+                                {
+                                    temp: expect.any(Number),
+                                    weather: {
+                                        search: {
+                                            items: expect.any(Object)
+                                        },
+                                        tweet: { statuses: expect.any(Array) }
+                                    }
                                 }
-                            }
-                        ]
-                    },
-                    get_v1: {
-                        items: expect.any(Array)
+                            ]
+                        },
+                        get_v1: {
+                            items: expect.any(Array)
+                        }
                     }
-                }
+                })
             })
         })
     })
