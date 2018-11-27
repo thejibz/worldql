@@ -1,9 +1,3 @@
-process.env.DEBUG = ["worldql-core"]
-process.env.DEBUG_DEPTH = 15
-
-const globalTunnel = require("global-tunnel")
-globalTunnel.initialize() // use ENV http_proxy for all requests
-
 const worldql = require("../src/worldql-core")
 
 describe("Test the worldql for elasticsearch", () => {
