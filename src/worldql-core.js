@@ -46,23 +46,24 @@ const WorldQL = (function() {
             elasticClient: elasticClient
         }).then(elasticMapping => {
             const esTC = composeWithElastic({
-                graphqlTypeName: gqlApi.source.params.elasticType,
+                graphqlTypeName: gqlApi.source.params.graphqlTypeName,
                 elasticIndex: gqlApi.source.params.elasticIndex,
                 elasticType: gqlApi.source.params.elasticType,
                 elasticMapping: elasticMapping,
                 elasticClient: elasticClient,
+                prefix: gqlApi.source.params.prefix || "",
                 // elastic mapping does not contain information about is fields are arrays or not
                 // so provide this information explicitly for obtaining correct types in GraphQL
                 // ex: pluralFields: ['skills', 'languages']
                 pluralFields: gqlApi.source.params.pluralFields
             })
-
+            
             return new Promise(resolve => {
                 const gqlSchema = new GraphQL.GraphQLSchema({
                     query: new GraphQL.GraphQLObjectType({
                         name: "Query",
                         fields: {
-                            employee: esTC.getResolver("search").getFieldConfig()
+                            [gqlApi.source.params.graphqlTypeName]: esTC.getResolver("search").getFieldConfig()
                         }
                     })
                 })

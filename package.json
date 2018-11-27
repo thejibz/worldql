@@ -10,7 +10,6 @@
   },
   "homepage": "https://github.com/thejibz/worldql-core#readme",
   "dependencies": {
-    "apollo-server": "^2.2.2",
     "debug": "^4.0.0",
     "elasticsearch": "^15.2.0",
     "global-tunnel": "^1.2.0",
@@ -25,14 +24,17 @@
   "devDependencies": {
     "eslint": "^5.8.0",
     "eslint-plugin-jest": "^21.26.2",
-    "jest": "^23.6.0"
+    "jest": "^23.6.0",
+    "express-graphql": "^0.7.1",
+    "apollo-server": "^2.2.2"
   },
   "resolutions": {
     "tunnel": "0.0.6"
   },
   "scripts": {
     "test": "jest",
-    "playground": "node src/worldql-playground.js"
+    "playground": "DEBUG='worldql-core' node src/worldql-playground.js",
+    "graphiql": "DEBUG='worldql-core' node src/worldql-graphiql.js"
   },
   "jest": {
     "testEnvironment": "node"

@@ -16,9 +16,9 @@ describe("Test the worldql for elasticsearch", () => {
                     url: "http://localhost:9200",
                     type: "ELASTICSEARCH",
                     params: {
+                        graphqlTypeName:  "employees",
                         elasticIndex: "companydatabase",
                         elasticType: "employees",
-                        pluralFields: ["skills", "languages"],
                         apiVersion: "5.6"
                     }
                 }
@@ -27,7 +27,7 @@ describe("Test the worldql for elasticsearch", () => {
 
         const gqlQuery = `
         {
-            employee(q:"Age:33"){
+            employees(q:"Age:33"){
               count
               hits {
                 _source {
@@ -43,7 +43,7 @@ describe("Test the worldql for elasticsearch", () => {
             worldql.exec(gqlSchema, gqlQuery).then(response => {
                 expect(response).toMatchObject({
                     data: {
-                        employee: {
+                        employees: {
                             count: expect.any(Number),
                             hits: expect.any(Array)
                         }

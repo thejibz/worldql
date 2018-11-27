@@ -1,19 +1,9 @@
+const express = require("express")
+const graphqlHTTP = require("express-graphql")
 const worldql = require("./worldql-core")
-const { ApolloServer } = require('apollo-server')
+const { printSchema } = require("graphql")
 
-
-/* For introspection
-query {
-  __schema {
-    types {
-      name
-      fields {
-        name
-      }
-    }
-  }
-}
-*/
+const app = express()
 
 const gqlApis = [
     {
@@ -40,15 +30,14 @@ const gqlApis = [
     },
 ]
 
-async function main() {
-    const server = new ApolloServer({
-        schema: await worldql.buildGqlSchema(gqlApis),
-        playground: true
-    })
+worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
+    app.use(
+        "/graphql",
+        graphqlHTTP({
+            schema: gqlSchema,
+            graphiql: true,
+        })
+    )
 
-    server.listen().then(({ url }) => {
-        console.log(`🚀 Server ready at ${url}`)
-    })
-}
-
-main()
+    app.listen(4000)
+})

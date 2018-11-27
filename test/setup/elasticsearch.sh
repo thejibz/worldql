@@ -2,7 +2,7 @@
 
 # wait for ES to start
 chmod +x /tmp/setup/wait-for-it.sh
-/tmp/setup/wait-for-it.sh localhost:9200 --timeout=15 --strict
+/tmp/setup/wait-for-it.sh localhost:9200 --timeout=30 --strict
 
 # load data in ES
 curl -XPUT 'localhost:9200/companydatabase?pretty' -H 'Content-Type: application/json' -d' {"mappings" : { "employees" : { "properties" : { "FirstName" : { "type" : "text" }, "LastName" : { "type" : "text" }, "Designation" : { "type" : "text" }, "Salary" : { "type" : "integer" }, "DateOfJoining" : { "type" : "date", "format": "yyyy-MM-dd" }, "Address" : { "type" : "text" }, "Gender" : { "type" : "text" }, "Age" : { "type" : "integer" }, "MaritalStatus" : { "type" : "text" }, "Interests" : { "type" : "text" }}}}}' 

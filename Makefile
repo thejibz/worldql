@@ -7,6 +7,9 @@ install:
 playground:
 	yarn playground
 
+graphiql:
+	yarn graphiql
+
 test:
 	yarn test
 
