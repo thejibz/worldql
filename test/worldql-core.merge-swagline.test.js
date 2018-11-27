@@ -1,6 +1,8 @@
 const worldql = require("../src/worldql-core")
 
 describe("Test the worldql", () => {
+    jest.setTimeout(30000)
+
     const oasWeather = "https://raw.githubusercontent.com/APIs-guru/openapi-directory/master/APIs/weatherbit.io/2.0.0/swagger.yaml"
     const oasTwitter = "https://raw.githubusercontent.com/thejibz/openapi-directory/master/APIs/twitter.com/1.1/swagger.yaml"
     const oasGoogle = "https://raw.githubusercontent.com/APIs-guru/openapi-directory/master/APIs/googleapis.com/customsearch/v1/swagger.yaml"
@@ -10,8 +12,6 @@ describe("Test the worldql", () => {
         "x-oauth-v1-consumer-secret": process.env.WORLDQL_TWITTER_CONSUMER_SECRET,
         "x-oauth-v1-signature-method": "HMAC-SHA1"
     }
-
-    jest.setTimeout(15000)
 
     test("get temp, weather's picture, weather's tweet, for Rennes with stitching", () => {
         const gqlApis = [

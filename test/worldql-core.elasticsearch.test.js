@@ -1,7 +1,7 @@
 const worldql = require("../src/worldql-core")
 
 describe("Test the worldql for elasticsearch", () => {
-    jest.setTimeout(15000)
+    jest.setTimeout(30000)
 
     test("get all employees of age 33", () => {
         const gqlApis = [
