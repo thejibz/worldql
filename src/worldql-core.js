@@ -25,7 +25,7 @@ const WorldQL = (function () {
     })
 
     const _buildGqlSchemaFromGraphQL = function (gqlApi) {
-        const link = new createHttpLink({ uri: gqlApi.source.url })
+        const link = new createHttpLink({ uri: gqlApi.source.url, credentials: "same-origin" })
 
         return gqltools.introspectSchema(link).then(schema => {
             const gqlSchema = gqltools.makeRemoteExecutableSchema({

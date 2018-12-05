@@ -12,6 +12,7 @@
     "apollo-link-http": "^1.5.7",
     "debug": "^4.0.0",
     "elasticsearch": "^15.2.0",
+    "fetch": "^1.1.0",
     "graphql": "^14.0.2",
     "graphql-compose": "^5.3.3",
     "graphql-compose-elasticsearch": "git+https://github.com/thejibz/graphql-compose-elasticsearch.git",
