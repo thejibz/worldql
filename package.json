@@ -4,32 +4,30 @@
   "main": "src/worldql-core.js",
   "repository": "https://github.com/thejibz/worldql-core.git",
   "author": "Jean-Baptiste Roux",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/thejibz/worldql-core/issues"
   },
   "homepage": "https://github.com/thejibz/worldql-core#readme",
   "dependencies": {
+    "apollo-link-http": "^1.5.7",
     "debug": "^4.0.0",
     "elasticsearch": "^15.2.0",
-    "global-tunnel": "^1.2.0",
     "graphql": "^14.0.2",
     "graphql-compose": "^5.3.3",
     "graphql-compose-elasticsearch": "git+https://github.com/thejibz/graphql-compose-elasticsearch.git",
+    "graphql-compose-mysql": "git+https://github.com/thejibz/graphql-compose-mysql.git",
     "graphql-tools": "^4.0.2",
+    "mysql": "^2.16.0",
     "oasgraph": "^0.10.1",
     "swagger-parser": "^5.0.0",
     "swagger-to-graphql": "git+https://github.com/thejibz/swagger-to-graphql.git"
   },
   "devDependencies": {
+    "apollo-server": "^2.2.2",
     "eslint": "^5.8.0",
     "eslint-plugin-jest": "^21.26.2",
-    "jest": "^23.6.0",
     "express-graphql": "^0.7.1",
-    "apollo-server": "^2.2.2"
-  },
-  "resolutions": {
-    "tunnel": "0.0.6"
+    "jest": "^23.6.0"
   },
   "scripts": {
     "test": "jest",
@@ -37,6 +35,9 @@
     "graphiql": "DEBUG='worldql-core' node src/worldql-graphiql.js"
   },
   "jest": {
+    "roots": [
+      "<rootDir>/tests/"
+    ],
     "testEnvironment": "node"
   }
 }
