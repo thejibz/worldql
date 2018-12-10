@@ -28,14 +28,9 @@ const gqlApis = [
         //   },
         // },
         source: {
-            url: "http://tpels005s.priv.atos.fr:9200/",
-            type: "ELASTICSEARCH",
-            params: {
-                graphqlTypeName:  "itdiscovery",
-                elasticIndex: "itdiscovery_2018.11.25",
-                elasticType: "default",
-                apiVersion: "5.6",
-            },
+            type: "OPEN_API",
+            url: "http://localhost:8085/api-docs",
+            converter: "OASGRAPH"
         },
     },
 ]
