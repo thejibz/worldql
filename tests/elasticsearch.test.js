@@ -34,7 +34,7 @@ describe("Test the worldql for elasticsearch", () => {
           }`
 
         return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
-            worldql.exec(gqlSchema, gqlQuery).then(response => {
+            return worldql.exec(gqlSchema, gqlQuery).then(response => {
                 expect(response).toMatchObject({
                     data: {
                         employees: {

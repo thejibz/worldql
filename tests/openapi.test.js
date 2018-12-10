@@ -27,7 +27,7 @@ describe("Test worldql with OpenAPI datasource", () => {
         }`
 
         return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
-            worldql.exec(gqlSchema, gqlQuery).then(response => {
+            return worldql.exec(gqlSchema, gqlQuery).then(response => {
                 expect(response).toMatchObject({
                     data: {
                         viewerApiKey: {

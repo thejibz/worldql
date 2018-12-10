@@ -1,10 +1,10 @@
 const SwaggerParser = require("swagger-parser")
 const OASGraph = require("oasgraph")
 
-module.exports.buildGqlSchemaFromOas = (gqlApi) => {
-    return SwaggerParser.validate(gqlApi.source.url).then(openApiSchema => {
+module.exports.buildGqlSchemaFromOas = (sourceName, sourceConf) => {
+    return SwaggerParser.validate(sourceConf.url).then(openApiSchema => {
         return OASGraph.createGraphQlSchema(openApiSchema).then(({ schema }) => {
-            return { schema: schema, schemaUrl: gqlApi.source.url }
+            return { [sourceName]: schema }
         })
     })
 }

@@ -16,35 +16,27 @@ query {
 */
 
 async function main() {
-    const gqlApis = [
-        {
-            source: {
-                type: "OPEN_API",
+    const wqlConf = {
+        sources: {
+            petstore: {
                 url: "http://localhost:8085/api-docs",
+                type: "OPEN_API",
                 converter: "OASGRAPH"
-            }
-        },
-        {
-            source: {
+            },
+            books: {
                 url: "http://localhost:8090",
                 type: "GRAPHQL",
             },
-        },
-        {
-            source: {
-                url: 'http://localhost:9200',
+            company: {
                 type: 'ELASTICSEARCH',
-                params: {
-                    graphqlTypeName: "companydatabase",
-                    elasticIndex: 'companydatabase',
-                    elasticType: 'employees',
-                    pluralFields: ['skills', 'languages'],
-                    apiVersion: '5.6',
-                },
+                url: 'http://localhost:9200',
+                graphqlTypeName: "company",
+                elasticIndex: 'companydatabase',
+                elasticType: 'employees',
+                pluralFields: ['skills', 'languages'],
+                apiVersion: '5.6',
             },
-        },
-        {
-            source: {
+            employees: {
                 type: "MYSQL",
                 host: "localhost",
                 port: "3306",
@@ -54,69 +46,89 @@ async function main() {
                 mysqlTableName: "employees",
                 graphqlTypeName: "employeesT",
             },
-            links: [
-                {
-                    inType: "employeesT",
-                    on: {
-                        field: {
-                            name: "companydatabase",
-                            type: "EsSearchOutput",
-                            schemaUrl: "http://localhost:9200",
-                            query: {
-                                name: "companydatabase",
-                                params: {
-                                    static: {
-                                        q: "Age:33"
-                                    },
-                                    parent: [
-                                        // {
-                                        //     q:"last_name",
-                                        //     hits:"emp_no"
-                                        // }
-                                    ],
-                                    variables: {}
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    inType: "EsSearchOutput",
-                    on: {
-                        field: {
-                            name: "petstore",
-                            type: "viewerApiKey",
-                            schemaUrl: "http://localhost:8085/api-docs",
-                            query: {
-                                name: "viewerApiKey",
-                                params: {
-                                    static: {
-                                        apiKey: "qsdfqsdfsf"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    inType: "aPet",
-                    on: {
-                        field: {
-                            name: "books",
-                            type: "[Book]",
-                            schemaUrl: "http://localhost:8090",
-                            query: {
-                                name: "books"
-                            }
-                        }
-                    }
-                }
-            ]
         },
-    ]
+        stitches: []
+    }
+    //     {
+    //         source: {
+    //             type: "OPEN_API",
+    //             url: "http://localhost:8085/api-docs",
+    //             converter: "OASGRAPH"
+    //         }
+    //     },
+    //     {
+    //         source: {
+    //             url: "http://localhost:8090",
+    //             type: "GRAPHQL",
+    //         },
+    //     },
+    //     {
+    //         source: {
+    //             url: 'http://localhost:9200',
+    //             type: 'ELASTICSEARCH',
+    //             params: {
+    //                 graphqlTypeName: "companydatabase",
+    //                 elasticIndex: 'companydatabase',
+    //                 elasticType: 'employees',
+    //                 pluralFields: ['skills', 'languages'],
+    //                 apiVersion: '5.6',
+    //             },
+    //         },
+    //     },
+    //     {
+    //         source: {
+    //             type: "MYSQL",
+    //             host: "localhost",
+    //             port: "3306",
+    //             user: "root",
+    //             password: "secret",
+    //             database: "employees",
+    //             mysqlTableName: "employees",
+    //             graphqlTypeName: "employeesT",
+    //         },
+    //         links: [
+    //             {
+    //                 inType: "employeesT",
+
+    //                 // {
+    //                 //     parentType: "employeesT",
+    //                 //     fieldName: "field_name",
+    //                 //     fieldType: "field_type (can be infered)",
+    //                 //     resolver: {
+    //                 //         schemaName: "remote schema",
+    //                 //         queryName: "my query",
+    //                 //         addSourceParams: true,
+    //                 //         params: {
+    //                 //             static: {},
+    //                 //             fromParent: {},
+    //                 //             fromVariables: {},
+    //                 //         }
+    //                 //     }
+    //                 // }
+
+    //                 on: {
+    //                     field: {
+    //                         name: "elastic",
+    //                         params:"(q: String)",
+    //                         type: "EsSearchOutput",
+    //                         schemaUrl: "http://localhost:9200",
+    //                         query: {
+    //                             name: "companydatabase",
+    //                             params: {
+    //                                 static: {
+    //                                    //q: "Age:33"
+    //                                 },
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             },
+    //         ]
+    //     },
+    // ]
 
     const server = new ApolloServer({
-        schema: await worldql.buildGqlSchema(gqlApis),
+        schema: await worldql.buildGqlSchema(wqlConf),
         playground: true
     })
 

@@ -17,38 +17,36 @@ const WorldQL = (function () {
     })
 
     const _buildLinks = function (gqlApi, gqlSchemas) {
-        if (gqlApi.links) {
+        if (!!gqlApi.links) {
             return gqlApi.links.map(link => {
                 const linkTypeDef = `
-            extend type ${link.inType} {
-                ${link.on.field.name}: ${link.on.field.type}
-            }
-        `
+                    extend type ${link.inType} {
+                        ${link.on.field.name}${link.on.field.params}: ${link.on.field.type}
+                    }`
 
                 const resolver = {
                     [link.inType]: {
-                        [link.on.field.name]: {
-                            resolve(parentResp, args, context, info) {
-                                const linkSchema = gqlSchemas.find(s => s.schemaUrl == link.on.field.schemaUrl)
+                        [link.on.field.name](parentResp, args, context, info) {
+                            debug("args: %o", args)
+                            const linkSchema = gqlSchemas.find(s => s.schemaUrl == link.on.field.schemaUrl)
 
-                                const params = link.on.field.query.params
+                            const params = link.on.field.query.params
 
-                                let argsForLink = args
-                                if (!!params) {
-                                    Object.assign(argsForLink, params.static, _buildParentParams(parentResp, params.parent))
-                                }
-
-                                const resolver = info.mergeInfo.delegateToSchema({
-                                    schema: linkSchema.schema,
-                                    operation: "query",
-                                    fieldName: link.on.field.query.name,
-                                    args: argsForLink,
-                                    context,
-                                    info
-                                })
-
-                                return resolver
+                            let argsForLink = {}
+                            if (!!params) {
+                                Object.assign(argsForLink, params.static, _buildParentParams(parentResp, params.parent))
                             }
+
+                            const resolver = info.mergeInfo.delegateToSchema({
+                                schema: linkSchema.schema,
+                                operation: "query",
+                                fieldName: link.on.field.query.name,
+                                args: argsForLink,
+                                context,
+                                info
+                            })
+
+                            return resolver
                         }
                     }
                 }
@@ -80,38 +78,50 @@ const WorldQL = (function () {
             })
         },
 
-        buildGqlSchema: function (gqlApis) {
-            const gqlSchemas = gqlApis.map(gqlApi => {
-                switch (gqlApi.source.type) {
+        buildGqlSchema: function (wqlConf) {
+            const wqlSchemas = Object.entries(wqlConf.sources).map(source => {
+                
+                const sourceName = source[0]
+                const sourceConf = source[1]
+                debug("sourceConf: %o", sourceConf)
+
+                switch (sourceConf.type) {
                     case SOURCE_TYPE.OPEN_API:
-                        return oasBuilder.buildGqlSchemaFromOas(gqlApi)
+                        return oasBuilder.buildGqlSchemaFromOas(sourceName, sourceConf)
 
                     case SOURCE_TYPE.ELASTICSEARCH:
-                        return esBuilder.buildGqlSchemaFromEs(gqlApi)
+                        return esBuilder.buildGqlSchemaFromEs(sourceName, sourceConf)
 
                     case SOURCE_TYPE.GRAPHQL:
-                        return gqlBuilder.buildGqlSchemaFromGql(gqlApi)
+                        return gqlBuilder.buildGqlSchemaFromGql(sourceName, sourceConf)
 
                     case SOURCE_TYPE.MYSQL:
-                        return mysqlBuilder.buildGqlSchemaFromMysql(gqlApi)
+                        return mysqlBuilder.buildGqlSchemaFromMysql(sourceName, sourceConf)
 
                     default:
-                        throw new Error("Source type not defined or invalid for " + gqlApi)
+                        throw new Error("Source type not defined or invalid for " + sourceName)
                 }
             })
 
-            const finalSchema = Promise.all(gqlSchemas).then(gqlSchemas => {
-                const schemas = gqlSchemas.map(s => s.schema)
+            const finalSchema = Promise.all(wqlSchemas).then(wqlSchemas => {
+                
+                /**
+                 * Extract an array of graphQL schemas
+                 */
+                const schemas = wqlSchemas // [ { schemaName1: GQLSchema...}, { schemaName2: GQLSchema...}, ...]
+                    .map(wqlSchema => Object.values(wqlSchema)) // [ [ GQLSchema {...} ], [ GQLSchema {...} ], ...]
+                    .reduce((acc, entry) => acc.concat(entry), []) // flatMap workaround: [ GQLSchema {...}, GQLSchema {...}, ...]
+                
                 const resolvers = []
 
-                gqlApis
-                    .map(gqlApi => _buildLinks(gqlApi, gqlSchemas))
-                    .reduce((acc, param) => acc.concat(param), []) // flatMap workaround
-                    .filter(link => !!link) // filter empty links
-                    .map(link => {
-                        schemas.push(link.linkTypeDef)
-                        resolvers.push(link.resolver)
-                    })
+                // gqlApis
+                //     .map(gqlApi => _buildLinks(gqlApi, gqlSchemas))
+                //     .reduce((acc, param) => acc.concat(param), []) // flatMap workaround
+                //     .filter(link => !!link) // filter empty links
+                //     .map(link => {
+                //         schemas.push(link.linkTypeDef)
+                //         resolvers.push(link.resolver)
+                //     })
 
                 return gqltools.mergeSchemas({
                     schemas: schemas,

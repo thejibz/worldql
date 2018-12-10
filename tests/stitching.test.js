@@ -3,7 +3,7 @@ const worldql = require("../src/worldql-core")
 describe("Test the worldql", () => {
     jest.setTimeout(30000)
 
-    test("stitch: mysql => elastic => openapi", () => {
+    test("stitch: mysql => elastic => openapi => graphql", () => {
         const gqlApis = [
             {
                 source: {
@@ -47,6 +47,7 @@ describe("Test the worldql", () => {
                         on: {
                             field: {
                                 name: "companydatabase",
+                                params: "",
                                 type: "EsSearchOutput",
                                 schemaUrl: "http://localhost:9200",
                                 query: {
@@ -72,6 +73,7 @@ describe("Test the worldql", () => {
                         on: {
                             field: {
                                 name: "petstore",
+                                params: "",
                                 type: "viewerApiKey",
                                 schemaUrl: "http://localhost:8085/api-docs",
                                 query: {
@@ -90,6 +92,7 @@ describe("Test the worldql", () => {
                         on: {
                             field: {
                                 name: "books",
+                                params: "",
                                 type: "[Book]",
                                 schemaUrl: "http://localhost:8090",
                                 query: {
@@ -122,7 +125,7 @@ describe("Test the worldql", () => {
           }`
 
         return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
-            worldql.exec(gqlSchema, gqlQuery).then(response => {
+            return worldql.exec(gqlSchema, gqlQuery).then(response => {
                 expect(response).toMatchObject({
                     data: {
                         employees: [

@@ -4,18 +4,18 @@ const { composeWithMysql } = require("graphql-compose-mysql")
  * 
  * @param { source: { host, port, user, password, database, graphqlTypeName, mysqlTableName } } gqlApi 
  */
-module.exports.buildGqlSchemaFromMysql = (gqlApi) => {
+module.exports.buildGqlSchemaFromMysql = (sourceName, sourceConf) => {
     return composeWithMysql({
-        graphqlTypeName: gqlApi.source.graphqlTypeName,
+        graphqlTypeName: sourceConf.graphqlTypeName,
+        mysqlTableName: sourceConf.mysqlTableName,
         mysqlConfig: {
-            host: gqlApi.source.host,
-            port: gqlApi.source.port,
-            user: gqlApi.source.user,
-            password: gqlApi.source.password,
-            database: gqlApi.source.database,
+            host: sourceConf.host,
+            port: sourceConf.port,
+            user: sourceConf.user,
+            password: sourceConf.password,
+            database: sourceConf.database,
         },
-        mysqlTableName: gqlApi.source.mysqlTableName,
     }).then(gqlSchema => {
-        return { schema: gqlSchema, schemaUrl: gqlApi.source.host }
+        return { [sourceName]: gqlSchema }
     })
 }
