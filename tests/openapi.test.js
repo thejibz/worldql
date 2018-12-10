@@ -9,7 +9,6 @@ describe("Test worldql with OpenAPI datasource", () => {
                 source: {
                     type: "OPEN_API",
                     url: "http://localhost:8085/api-docs",
-                    converter: "OASGRAPH"
                 }
             }
         ]

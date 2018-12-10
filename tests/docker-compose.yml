@@ -36,12 +36,17 @@ services:
     ports:
       - 8080:8080
 
-  petstore:
+  openapi:
     image: thejibz/petstore
     volumes:
       - ./data/openapi/swagger.yaml:/app/api/swagger.yaml
     ports:
       - 8085:8080
+
+  graphql:
+    image: thejibz/graphql-server-example
+    ports:
+      - 8090:4000
 
 volumes:
   mysql:

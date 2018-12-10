@@ -26,6 +26,12 @@ async function main() {
         },
         {
             source: {
+                url: "http://localhost:8090",
+                type: "GRAPHQL",
+            },
+        },
+        {
+            source: {
                 url: 'http://localhost:9200',
                 type: 'ELASTICSEARCH',
                 params: {
@@ -88,6 +94,19 @@ async function main() {
                                         apiKey: "qsdfqsdfsf"
                                     }
                                 }
+                            }
+                        }
+                    }
+                },
+                {
+                    inType: "aPet",
+                    on: {
+                        field: {
+                            name: "books",
+                            type: "[Book]",
+                            schemaUrl: "http://localhost:8090",
+                            query: {
+                                name: "books"
                             }
                         }
                     }

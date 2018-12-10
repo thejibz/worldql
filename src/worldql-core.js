@@ -1,109 +1,20 @@
 const debug = require("debug")("worldql-core")
 
 const GraphQL = require("graphql")
-const SwaggerToGraphQL = require("swagger-to-graphql")
-const OASGraph = require("oasgraph")
-const SwaggerParser = require("swagger-parser")
 const gqltools = require("graphql-tools")
-const elasticsearch = require("elasticsearch")
-const { composeWithElastic, fetchElasticMapping } = require("graphql-compose-elasticsearch")
-const { createHttpLink } = require("apollo-link-http")
 
+const oasBuilder = require("./builders/openapi.builder")
 const mysqlBuilder = require("./builders/mysql.builder")
+const esBuilder = require("./builders/elasticsearch.builder")
+const gqlBuilder = require("./builders/graphql.builder")
 
 const WorldQL = (function () {
     const SOURCE_TYPE = Object.freeze({
-        OPEN_API_SPECFILE: "OPEN_API_SPECFILE",
+        OPEN_API: "OPEN_API",
         GRAPHQL: "GRAPHQL",
         ELASTICSEARCH: "ELASTICSEARCH",
         MYSQL: "MYSQL"
     })
-
-    const SOURCE_CONVERTER = Object.freeze({
-        SWAGGER_TO_GRAPHQL: "SWAGGER_TO_GRAPHQL",
-        OASGRAPH: "OASGRAPH"
-    })
-
-    const _buildGqlSchemaFromGraphQL = function (gqlApi) {
-        const link = new createHttpLink({ uri: gqlApi.source.url, credentials: "same-origin" })
-
-        return gqltools.introspectSchema(link).then(schema => {
-            const gqlSchema = gqltools.makeRemoteExecutableSchema({
-                schema,
-                link
-            })
-
-            return { schema: gqlSchema, schemaUrl: gqlApi.source.url }
-        })
-    }
-
-    const _buildGqlSchemaFromES = function (gqlApi) {
-        const elasticClient = new elasticsearch.Client({
-            host: gqlApi.source.url,
-            apiVersion: gqlApi.source.params.apiVersion
-        })
-
-        return fetchElasticMapping({
-            elasticIndex: gqlApi.source.params.elasticIndex,
-            elasticType: gqlApi.source.params.elasticType,
-            elasticClient: elasticClient
-        }).then(elasticMapping => {
-            const esTC = composeWithElastic({
-                graphqlTypeName: gqlApi.source.params.graphqlTypeName,
-                elasticIndex: gqlApi.source.params.elasticIndex,
-                elasticType: gqlApi.source.params.elasticType,
-                elasticMapping: elasticMapping,
-                elasticClient: elasticClient,
-                prefix: gqlApi.source.params.prefix || "",
-                // elastic mapping does not contain information about is fields are arrays or not
-                // so provide this information explicitly for obtaining correct types in GraphQL
-                // ex: pluralFields: ['skills', 'languages']
-                pluralFields: gqlApi.source.params.pluralFields
-            })
-
-            const gqlSchema = new GraphQL.GraphQLSchema({
-                query: new GraphQL.GraphQLObjectType({
-                    name: "Query",
-                    fields: {
-                        [gqlApi.source.params.graphqlTypeName]: esTC.getResolver("search").getFieldConfig()
-                    }
-                })
-            })
-
-            return { schema: gqlSchema, schemaUrl: gqlApi.source.url }
-        })
-    }
-
-    const _buildGqlSchemaFromOAS = function (gqlApi) {
-        return SwaggerParser.validate(gqlApi.source.url).then(openApiSchema => {
-            switch (gqlApi.source.converter) {
-                case SOURCE_CONVERTER.SWAGGER_TO_GRAPHQL:
-                    return _buildGqlSchemaWithSwaggerToGraphQL(gqlApi, openApiSchema)
-
-                case SOURCE_CONVERTER.OASGRAPH:
-                    return _buildGqlSchemaWithOASGraph(gqlApi, openApiSchema)
-
-                default:
-                    return _buildGqlSchemaWithSwaggerToGraphQL(gqlApi, openApiSchema)
-            }
-        })
-    }
-
-    const _buildGqlSchemaWithSwaggerToGraphQL = function (gqlApi, openApiSchema) {
-        // build backendUrl from infos of the openapi spec file
-        const backendUrl = `${openApiSchema.schemes[0]}://${openApiSchema.host}${openApiSchema.basePath ? openApiSchema.basePath : ""}`
-        debug("(backendUrl) %o", backendUrl)
-
-        return SwaggerToGraphQL(openApiSchema, backendUrl, gqlApi.headers).then(gqlSchema => {
-            return { schema: gqlSchema, schemaUrl: gqlApi.source.url }
-        })
-    }
-
-    const _buildGqlSchemaWithOASGraph = function (gqlApi, openApiSchema) {
-        return OASGraph.createGraphQlSchema(openApiSchema).then(({ schema }) => {
-            return { schema: schema, schemaUrl: gqlApi.source.url }
-        })
-    }
 
     const _buildLinks = function (gqlApi, gqlSchemas) {
         if (gqlApi.links) {
@@ -122,11 +33,16 @@ const WorldQL = (function () {
 
                                 const params = link.on.field.query.params
 
+                                let argsForLink = args
+                                if (!!params) {
+                                    Object.assign(argsForLink, params.static, _buildParentParams(parentResp, params.parent))
+                                }
+
                                 const resolver = info.mergeInfo.delegateToSchema({
                                     schema: linkSchema.schema,
                                     operation: "query",
                                     fieldName: link.on.field.query.name,
-                                    args: Object.assign({}, params.static, _buildParentParams(parentResp, params.parent)),
+                                    args: argsForLink,
                                     context,
                                     info
                                 })
@@ -165,24 +81,22 @@ const WorldQL = (function () {
         },
 
         buildGqlSchema: function (gqlApis) {
-            debug("sources: %o", gqlApis)
             const gqlSchemas = gqlApis.map(gqlApi => {
-                debug("source: %o", gqlApi.source)
                 switch (gqlApi.source.type) {
-                    case SOURCE_TYPE.OPEN_API_SPECFILE:
-                        return _buildGqlSchemaFromOAS(gqlApi)
+                    case SOURCE_TYPE.OPEN_API:
+                        return oasBuilder.buildGqlSchemaFromOas(gqlApi)
 
                     case SOURCE_TYPE.ELASTICSEARCH:
-                        return _buildGqlSchemaFromES(gqlApi)
+                        return esBuilder.buildGqlSchemaFromEs(gqlApi)
 
                     case SOURCE_TYPE.GRAPHQL:
-                        return _buildGqlSchemaFromGraphQL(gqlApi)
+                        return gqlBuilder.buildGqlSchemaFromGql(gqlApi)
 
                     case SOURCE_TYPE.MYSQL:
-                        return mysqlBuilder.buildGqlSchemaFromMySql(gqlApi)
+                        return mysqlBuilder.buildGqlSchemaFromMysql(gqlApi)
 
                     default:
-                        return _buildGqlSchemaFromOAS(gqlApi)
+                        throw new Error("Source type not defined or invalid for " + gqlApi)
                 }
             })
 

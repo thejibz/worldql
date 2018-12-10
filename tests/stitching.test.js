@@ -9,7 +9,6 @@ describe("Test the worldql", () => {
                 source: {
                     type: "OPEN_API",
                     url: "http://localhost:8085/api-docs",
-                    converter: "OASGRAPH"
                 }
             },
             {
@@ -24,6 +23,12 @@ describe("Test the worldql", () => {
                         apiVersion: '5.6',
                     },
                 },
+            },
+            {
+                source: {
+                    url: "http://localhost:8090",
+                    type: "GRAPHQL",
+                }
             },
             {
                 source: {
@@ -79,6 +84,19 @@ describe("Test the worldql", () => {
                                 }
                             }
                         }
+                    },
+                    {
+                        inType: "aPet",
+                        on: {
+                            field: {
+                                name: "books",
+                                type: "[Book]",
+                                schemaUrl: "http://localhost:8090",
+                                query: {
+                                    name: "books"
+                                }
+                            }
+                        }
                     }
                 ]
             },
@@ -93,6 +111,10 @@ describe("Test the worldql", () => {
                 petstore {
                   aPet(petId: 1) {
                     name
+                    books{
+                        title
+                        author
+                    }
                   }
                 }
               }
@@ -110,7 +132,17 @@ describe("Test the worldql", () => {
                                     count: 2185,
                                     petstore: {
                                         aPet: {
-                                            name: "doggie"
+                                            name: "doggie",
+                                            books: [
+                                                {
+                                                    title: "Harry Potter and the Chamber of Secrets",
+                                                    author: "J.K. Rowling"
+                                                },
+                                                {
+                                                    title: "Jurassic Park",
+                                                    author: "Michael Crichton"
+                                                }
+                                            ]
                                         }
                                     }
                                 }

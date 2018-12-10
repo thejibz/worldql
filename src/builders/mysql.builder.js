@@ -1,11 +1,10 @@
-const mysql = require("mysql")
 const { composeWithMysql } = require("graphql-compose-mysql")
 
 /**
  * 
  * @param { source: { host, port, user, password, database, graphqlTypeName, mysqlTableName } } gqlApi 
  */
-module.exports.buildGqlSchemaFromMySql = (gqlApi) => {
+module.exports.buildGqlSchemaFromMysql = (gqlApi) => {
     return composeWithMysql({
         graphqlTypeName: gqlApi.source.graphqlTypeName,
         mysqlConfig: {
