@@ -17,16 +17,26 @@ query {
 
 const gqlApis = [
     {
-        // source: {
-        //   url: 'http://localhost:9200',
-        //   type: 'ELASTICSEARCH',
-        //   params: {
-        //     elasticIndex: 'companydatabase',
-        //     elasticType: 'employees',
-        //     pluralFields: ['skills', 'languages'],
-        //     apiVersion: '5.6',
-        //   },
-        // },
+        source: {
+          url: 'http://localhost:9200',
+          type: 'ELASTICSEARCH',
+          params: {
+            elasticIndex: 'companydatabase',
+            elasticType: 'employees',
+            pluralFields: ['skills', 'languages'],
+            apiVersion: '5.6',
+          },
+        },
+        source: {
+            type: "MYSQL",
+            host: "localhost",
+            port: "3306",
+            user: "root",
+            password: "secret",
+            database: "employees",
+            mysqlTableName: "employees",
+            graphqlTypeName:  "employeesT",
+        },
         source: {
             type: "OPEN_API",
             url: "http://localhost:8085/api-docs",
