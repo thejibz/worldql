@@ -3,36 +3,58 @@ const worldql = require("../src/worldql-core")
 describe("Test the worldql", () => {
     jest.setTimeout(30000)
 
-    test("get temp, weather's picture, weather's tweet, for Rennes with stitching", () => {
+    test("stitch: mysql => elastic => openapi", () => {
         const gqlApis = [
             {
                 source: {
-                    url: oasWeather
+                    type: "OPEN_API",
+                    url: "http://localhost:8085/api-docs",
+                    converter: "OASGRAPH"
+                }
+            },
+            {
+                source: {
+                    url: 'http://localhost:9200',
+                    type: 'ELASTICSEARCH',
+                    params: {
+                        graphqlTypeName: "companydatabase",
+                        elasticIndex: 'companydatabase',
+                        elasticType: 'employees',
+                        pluralFields: ['skills', 'languages'],
+                        apiVersion: '5.6',
+                    },
+                },
+            },
+            {
+                source: {
+                    type: "MYSQL",
+                    host: "localhost",
+                    port: "3306",
+                    user: "root",
+                    password: "secret",
+                    database: "employees",
+                    mysqlTableName: "employees",
+                    graphqlTypeName: "employeesT",
                 },
                 links: [
                     {
-                        inType: "get_current_cities_cities_data_items_weather",
+                        inType: "employeesT",
                         on: {
                             field: {
-                                name: "search",
-                                type: "get_v1!",
-                                schemaUrl: oasGoogle,
+                                name: "companydatabase",
+                                type: "EsSearchOutput",
+                                schemaUrl: "http://localhost:9200",
                                 query: {
-                                    name: "get_v1",
+                                    name: "companydatabase",
                                     params: {
                                         static: {
-                                            cx: process.env.WORLDQL_GOOGLE_CSE_CX,
-                                            key: process.env.WORLDQL_GOOGLE_CSE_KEY,
-                                            safe: "active",
-                                            rights: "cc_publicdomain",
-                                            imgSize: "medium",
-                                            searchType: "image",
-                                            num: 1
+                                            q: "Age:33"
                                         },
                                         parent: [
-                                            {
-                                                q: "description"
-                                            }
+                                            // {
+                                            //     q:"last_name",
+                                            //     hits:"emp_no"
+                                            // }
                                         ],
                                         variables: {}
                                     }
@@ -41,23 +63,18 @@ describe("Test the worldql", () => {
                         }
                     },
                     {
-                        inType: "get_current_cities_cities_data_items_weather",
+                        inType: "EsSearchOutput",
                         on: {
                             field: {
-                                name: "tweet",
-                                type: "get_search_tweets_json!",
-                                schemaUrl: oasTwitter,
+                                name: "petstore",
+                                type: "viewerApiKey",
+                                schemaUrl: "http://localhost:8085/api-docs",
                                 query: {
-                                    name: "get_search_tweets_json",
+                                    name: "viewerApiKey",
                                     params: {
                                         static: {
-                                            result_type: "popular"
-                                        },
-                                        parent: [
-                                            {
-                                                q: "description"
-                                            }
-                                        ]
+                                            apiKey: "qsdfqsdfsf"
+                                        }
                                     }
                                 }
                             }
@@ -65,78 +82,40 @@ describe("Test the worldql", () => {
                     }
                 ]
             },
-            {
-                source: {
-                    url: oasGoogle
-                }
-            },
-            {
-                source: {
-                    url: oasTwitter
-                },
-                headers: twitterHeaders
-            }
         ]
 
         const gqlQuery = `
-        query($city: String!, $country: String!, $key: String!) {
-            get_current_city_city_country_country(city: $city, country: $country, key: $key) {
-                data {
-                    temp
-                    weather {
-                        description
-                        search {
-                            items {
-                                link
-                            }
-                        }
-                        tweet {
-                            statuses {
-                                text
-                            }
-                        }
-                    }
+        {
+            employees(emp_no: 10005) {
+              first_name
+              companydatabase {
+                count
+                petstore {
+                  aPet(petId: 1) {
+                    name
+                  }
                 }
+              }
             }
-
-            get_v1(
-                cx: "${process.env.WORLDQL_GOOGLE_CSE_CX}", 
-                key: "${process.env.WORLDQL_GOOGLE_CSE_KEY}", 
-                safe: "active", 
-                rights: "cc_publicdomain", 
-                searchType: "image", 
-                q: $city) {
-                    items {
-                        link
-                }
-            }
-        }`
-        const gqlVariables = {
-            city: "rennes",
-            country: "france",
-            key: process.env.WORLDQL_WEATHERBIT_KEY
-        }
+          }`
 
         return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
-            worldql.exec(gqlSchema, gqlQuery, gqlVariables).then(response => {
+            worldql.exec(gqlSchema, gqlQuery).then(response => {
                 expect(response).toMatchObject({
                     data: {
-                        get_current_city_city_country_country: {
-                            data: [
-                                {
-                                    temp: expect.any(Number),
-                                    weather: {
-                                        search: {
-                                            items: expect.any(Object)
-                                        },
-                                        tweet: { statuses: expect.any(Array) }
+                        employees: [
+                            {
+                                first_name: "Kyoichi",
+                                companydatabase: {
+                                    count: 2185,
+                                    petstore: {
+                                        aPet: {
+                                            name: "doggie"
+                                        }
                                     }
                                 }
-                            ]
-                        },
-                        get_v1: {
-                            items: expect.any(Array)
-                        }
+                            }
+                        ]
                     }
                 })
             })

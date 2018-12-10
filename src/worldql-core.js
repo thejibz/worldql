@@ -9,7 +9,7 @@ const elasticsearch = require("elasticsearch")
 const { composeWithElastic, fetchElasticMapping } = require("graphql-compose-elasticsearch")
 const { createHttpLink } = require("apollo-link-http")
 
-const mysqlBuilder = require("./builders/mysql-builder")
+const mysqlBuilder = require("./builders/mysql.builder")
 
 const WorldQL = (function () {
     const SOURCE_TYPE = Object.freeze({
@@ -143,13 +143,12 @@ const WorldQL = (function () {
     }
 
     const _buildParentParams = function (parentResp, parentParams) {
-        return parentParams
+        return !!parentParams ? parentParams
             .map(param => Object.entries(param))
-            .reduce((acc, param) => acc.concat(param)) // flatMap workaround
+            .reduce((acc, entry) => acc.concat(entry), []) // flatMap workaround
             .map(entry => {
                 return { [entry[0]]: parentResp[entry[1]] }
-            })
-            .reduce((acc, param) => Object.assign(acc, param))
+            }) : {}
     }
 
     // public interfaces
@@ -166,7 +165,9 @@ const WorldQL = (function () {
         },
 
         buildGqlSchema: function (gqlApis) {
+            debug("sources: %o", gqlApis)
             const gqlSchemas = gqlApis.map(gqlApi => {
+                debug("source: %o", gqlApi.source)
                 switch (gqlApi.source.type) {
                     case SOURCE_TYPE.OPEN_API_SPECFILE:
                         return _buildGqlSchemaFromOAS(gqlApi)

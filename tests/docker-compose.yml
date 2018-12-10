@@ -6,30 +6,35 @@ services:
     volumes:
       - ./data/elasticsearch/Employees50K.json:/tmp/data/Employees50K.json
       - ./setup/wait-for-it.sh:/tmp/setup/wait-for-it.sh
-      - ./setup/elasticsearch.sh:/tmp/setup/elasticsearch.sh
+      - ./setup/elasticsearch.setup.sh:/tmp/setup/elasticsearch.setup.sh
+      - elasticsearch:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
-    command: bash -c 'chmod +x /tmp/setup/elasticsearch.sh && (/tmp/setup/elasticsearch.sh&) && /docker-entrypoint.sh elasticsearch'
+    command: bash -c 'chmod +x /tmp/setup/elasticsearch.setup.sh && (/tmp/setup/elasticsearch.setup.sh&) && /docker-entrypoint.sh elasticsearch'
 
   # postgres:
   #   image: postgres:11
   #   environment:
   #     POSTGRES_PASSWORD: secret
 
-  mysql-db:
+  mysql:
     image: mysql:5.7
     environment:
       MYSQL_ROOT_PASSWORD: secret
     ports:
       - 3306:3306
     volumes:
+      - ./data/mysql/test_db:/tmp/data/test_db
+      - ./setup/wait-for-it.sh:/tmp/setup/wait-for-it.sh
+      - ./setup/mysql.setup.sh:/tmp/setup/mysql.setup.sh
       - mysql:/var/lib/mysql
+    command: bash -c 'chmod +x /tmp/setup/mysql.setup.sh && (/tmp/setup/mysql.setup.sh&) && /entrypoint.sh mysqld'
 
-  # adminer:
-  #   image: adminer
-  #   restart: always
-  #   ports:
-  #     - 8080:8080
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
 
   petstore:
     image: thejibz/petstore
@@ -40,3 +45,4 @@ services:
 
 volumes:
   mysql:
+  elasticsearch:
