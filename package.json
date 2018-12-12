@@ -20,8 +20,7 @@
     "mysql": "^2.16.0",
     "node-fetch": "^2.3.0",
     "oasgraph": "^0.10.1",
-    "swagger-parser": "^5.0.0",
-    "swagger-to-graphql": "git+https://github.com/thejibz/swagger-to-graphql.git"
+    "swagger-parser": "^5.0.0"
   },
   "devDependencies": {
     "apollo-server": "^2.2.2",

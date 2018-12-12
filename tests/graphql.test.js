@@ -1,17 +1,19 @@
+const GraphQL = require("graphql")
 const worldql = require("../src/worldql-core")
 
 describe("Test the worldql for graphql", () => {
     jest.setTimeout(30000)
 
     test("get all books", () => {
-        const gqlApis = [
-            {
-                source: {
+        const wqlConf = {
+            sources: {
+                books: {
                     url: "http://localhost:8090",
                     type: "GRAPHQL",
-                }
-            }
-        ]
+                },
+            },
+            stitches: []
+        }
 
         const gqlQuery = `
         {
@@ -21,9 +23,13 @@ describe("Test the worldql for graphql", () => {
             }
         }`
 
-        return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
-            return worldql.exec(gqlSchema, gqlQuery).then(response => {
-                expect(response).toMatchObject({
+        return worldql.buildGqlSchema(wqlConf).then(gqlSchema => {
+            return GraphQL.graphql({
+                schema: gqlSchema,
+                source: gqlQuery,
+                // variableValues: gqlVariables
+            }).then(gqlResponse => {
+                expect(gqlResponse).toMatchObject({
                     data: {
                         books: [
                             {

@@ -1,27 +1,28 @@
+const GraphQL = require("graphql")
 const worldql = require("../src/worldql-core")
 
 describe("Test the worldql for elasticsearch", () => {
     jest.setTimeout(30000)
 
     test("get all employees of age 33", () => {
-        const gqlApis = [
-            {
-                source: {
-                    url: "http://localhost:9200",
-                    type: "ELASTICSEARCH",
-                    params: {
-                        graphqlTypeName:  "employees",
-                        elasticIndex: "companydatabase",
-                        elasticType: "employees",
-                        apiVersion: "5.6"
-                    }
+        const wqlConf = {
+            sources: {
+                company: {
+                    type: 'ELASTICSEARCH',
+                    url: 'http://localhost:9200',
+                    graphqlTypeName: "company",
+                    elasticIndex: 'companydatabase',
+                    elasticType: 'employees',
+                    pluralFields: ['skills', 'languages'],
+                    apiVersion: '5.6',
                 }
-            }
-        ]
+            },
+            stitches: []
+        }
 
         const gqlQuery = `
         {
-            employees(q:"Age:33"){
+            company(q:"Age:33"){
               count
               hits {
                 _source {
@@ -33,11 +34,15 @@ describe("Test the worldql for elasticsearch", () => {
             }
           }`
 
-        return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
-            return worldql.exec(gqlSchema, gqlQuery).then(response => {
-                expect(response).toMatchObject({
+        return worldql.buildGqlSchema(wqlConf).then(gqlSchema => {
+            return GraphQL.graphql({
+                schema: gqlSchema,
+                source: gqlQuery,
+                // variableValues: gqlVariables
+            }).then(gqlResponse => {
+                expect(gqlResponse).toMatchObject({
                     data: {
-                        employees: {
+                        company: {
                             count: expect.any(Number),
                             hits: expect.any(Array)
                         }

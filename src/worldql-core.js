@@ -1,6 +1,5 @@
 const debug = require("debug")("worldql-core")
 
-const GraphQL = require("graphql")
 const gqltools = require("graphql-tools")
 
 const oasBuilder = require("./builders/openapi.builder")
@@ -16,112 +15,110 @@ const WorldQL = (function () {
         MYSQL: "MYSQL"
     })
 
-    const _buildLinks = function (gqlApi, gqlSchemas) {
-        if (!!gqlApi.links) {
-            return gqlApi.links.map(link => {
-                const linkTypeDef = `
-                    extend type ${link.inType} {
-                        ${link.on.field.name}${link.on.field.params}: ${link.on.field.type}
-                    }`
+    function _createAllSchemas(sources) {
+        return Object.entries(sources).map(source => {
+            const sourceName = source[0]
+            const sourceConf = source[1]
 
-                const resolver = {
-                    [link.inType]: {
-                        [link.on.field.name](parentResp, args, context, info) {
-                            debug("args: %o", args)
-                            const linkSchema = gqlSchemas.find(s => s.schemaUrl == link.on.field.schemaUrl)
+            switch (sourceConf.type) {
+                case SOURCE_TYPE.OPEN_API:
+                    return oasBuilder.buildGqlSchemaFromOas(sourceName, sourceConf)
 
-                            const params = link.on.field.query.params
+                case SOURCE_TYPE.ELASTICSEARCH:
+                    return esBuilder.buildGqlSchemaFromEs(sourceName, sourceConf)
 
-                            let argsForLink = {}
-                            if (!!params) {
-                                Object.assign(argsForLink, params.static, _buildParentParams(parentResp, params.parent))
-                            }
+                case SOURCE_TYPE.GRAPHQL:
+                    return gqlBuilder.buildGqlSchemaFromGql(sourceName, sourceConf)
 
-                            const resolver = info.mergeInfo.delegateToSchema({
-                                schema: linkSchema.schema,
-                                operation: "query",
-                                fieldName: link.on.field.query.name,
-                                args: argsForLink,
-                                context,
-                                info
-                            })
+                case SOURCE_TYPE.MYSQL:
+                    return mysqlBuilder.buildGqlSchemaFromMysql(sourceName, sourceConf)
 
-                            return resolver
-                        }
-                    }
-                }
-
-                return { linkTypeDef: linkTypeDef, resolver: resolver }
-            })
-        }
+                default:
+                    throw new Error("Source type not defined or invalid for " + sourceName)
+            }
+        })
     }
 
-    const _buildParentParams = function (parentResp, parentParams) {
-        return !!parentParams ? parentParams
-            .map(param => Object.entries(param))
-            .reduce((acc, entry) => acc.concat(entry), []) // flatMap workaround
-            .map(entry => {
-                return { [entry[0]]: parentResp[entry[1]] }
-            }) : {}
+    function _buildStitches(stitches, wqlSchemas) {
+
+        if (!stitches)
+            return
+
+        return stitches.map(stitch => {
+            const linkTypeDef = `
+                    extend type ${stitch.parentType} {
+                        ${stitch.fieldName}: ${stitch.fieldType}
+                    }`
+
+            const remoteSchema = wqlSchemas // [ { sourceName1: GQLSchema...}, { sourceName2: GQLSchema...}, ...]
+                .find(wqlSchema => !!wqlSchema[stitch.resolver.source])/* { sourceName1: GQLSchema...} */[stitch.resolver.source] // { GQLSchema... }
+
+            const resolver = {
+                [stitch.parentType]: {
+                    [stitch.fieldName](parentResp, args, context, info) {
+                        const params = stitch.resolver.params
+
+                        let argsForStitch = {}
+                        if (!!params) {
+                            _buildParentParams(parentResp, params.fromParent).map(param => Object.assign(argsForStitch, param))
+                            Object.assign(argsForStitch, params.static, params.fromVariables)
+                        }
+
+                        const resolver = info.mergeInfo.delegateToSchema({
+                            schema: remoteSchema,
+                            operation: "query",
+                            fieldName: stitch.resolver.query,
+                            args: argsForStitch,
+                            context,
+                            info
+                        })
+
+                        return resolver
+                    }
+                }
+            }
+
+            return { linkTypeDef: linkTypeDef, resolver: resolver }
+        })
+
+    }
+
+    function _buildParentParams(parentResp, parentParams) {
+        if (!parentParams)
+            return {}
+
+        const params =
+            // { param1: parentFieldName1, param2: parentFieldName2, ...}
+            Object.entries(parentParams)
+                // [ [ param1, parentFieldName1], [ param2: parentFieldName2 ], ...]
+                .map(entry => {
+                    return { [entry[0]]: parentResp[entry[1]] }
+                })
+        // [ { param1: parentFieldValue1 }, { param2: parentFieldValue2 }, ...]
+
+        return params
     }
 
     // public interfaces
     return {
-        exec: function (gqlSchema, gqlQuery, gqlVariables) {
-            return GraphQL.graphql({
-                schema: gqlSchema,
-                source: gqlQuery,
-                variableValues: gqlVariables
-            }).then(gqlResponse => {
-                debug("(exec)(gqlResponse) %o", gqlResponse)
-                return gqlResponse
-            })
-        },
-
         buildGqlSchema: function (wqlConf) {
-            const wqlSchemas = Object.entries(wqlConf.sources).map(source => {
-                
-                const sourceName = source[0]
-                const sourceConf = source[1]
-                debug("sourceConf: %o", sourceConf)
-
-                switch (sourceConf.type) {
-                    case SOURCE_TYPE.OPEN_API:
-                        return oasBuilder.buildGqlSchemaFromOas(sourceName, sourceConf)
-
-                    case SOURCE_TYPE.ELASTICSEARCH:
-                        return esBuilder.buildGqlSchemaFromEs(sourceName, sourceConf)
-
-                    case SOURCE_TYPE.GRAPHQL:
-                        return gqlBuilder.buildGqlSchemaFromGql(sourceName, sourceConf)
-
-                    case SOURCE_TYPE.MYSQL:
-                        return mysqlBuilder.buildGqlSchemaFromMysql(sourceName, sourceConf)
-
-                    default:
-                        throw new Error("Source type not defined or invalid for " + sourceName)
-                }
-            })
+            const wqlSchemas = _createAllSchemas(wqlConf.sources)
 
             const finalSchema = Promise.all(wqlSchemas).then(wqlSchemas => {
-                
-                /**
-                 * Extract an array of graphQL schemas
-                 */
-                const schemas = wqlSchemas // [ { schemaName1: GQLSchema...}, { schemaName2: GQLSchema...}, ...]
-                    .map(wqlSchema => Object.values(wqlSchema)) // [ [ GQLSchema {...} ], [ GQLSchema {...} ], ...]
-                    .reduce((acc, entry) => acc.concat(entry), []) // flatMap workaround: [ GQLSchema {...}, GQLSchema {...}, ...]
-                
-                const resolvers = []
+                const schemas = wqlSchemas
+                    // [ { sourceName1: GQLSchema...}, { sourceName2: GQLSchema...}, ...]
+                    .map(wqlSchema => Object.values(wqlSchema))
+                    // [ [ GQLSchema {...} ], [ GQLSchema {...} ], ...]
+                    .reduce((acc, gqlSchema) => acc.concat(gqlSchema), [])
+                // [ GQLSchema {...}, GQLSchema {...}, ...]
 
-                // gqlApis
-                //     .map(gqlApi => _buildLinks(gqlApi, gqlSchemas))
-                //     .reduce((acc, param) => acc.concat(param), []) // flatMap workaround
-                //     .filter(link => !!link) // filter empty links
-                //     .map(link => {
-                //         schemas.push(link.linkTypeDef)
-                //         resolvers.push(link.resolver)
-                //     })
+                const resolvers = []
+                const stitches = _buildStitches(wqlConf.stitches, wqlSchemas)
+
+                stitches.map(stitch => {
+                    schemas.push(stitch.linkTypeDef)
+                    resolvers.push(stitch.resolver)
+                })
 
                 return gqltools.mergeSchemas({
                     schemas: schemas,

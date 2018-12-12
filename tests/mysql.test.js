@@ -1,12 +1,13 @@
+const GraphQL = require("graphql")
 const worldql = require("../src/worldql-core")
 
 describe("Test worldql with MySQL datasource", () => {
     jest.setTimeout(30000)
 
     test("get all fields for employee n°10005", () => {
-        const gqlApis = [
-            {
-                source: {
+        const wqlConf = {
+            sources: {
+                employees: {
                     type: "MYSQL",
                     host: "localhost",
                     port: "3306",
@@ -14,10 +15,11 @@ describe("Test worldql with MySQL datasource", () => {
                     password: "secret",
                     database: "employees",
                     mysqlTableName: "employees",
-                    graphqlTypeName:  "employeesT",
-                }
-            }
-        ]
+                    graphqlTypeName: "employeesT",
+                },
+            },
+            stitches: []
+        }
 
         const gqlQuery = `
         {
@@ -31,9 +33,13 @@ describe("Test worldql with MySQL datasource", () => {
             }
         }`
 
-        return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
-            return worldql.exec(gqlSchema, gqlQuery).then(response => {
-                expect(response).toMatchObject({
+        return worldql.buildGqlSchema(wqlConf).then(gqlSchema => {
+            return GraphQL.graphql({
+                schema: gqlSchema,
+                source: gqlQuery,
+                // variableValues: gqlVariables
+            }).then(gqlResponse => {
+                expect(gqlResponse).toMatchObject({
                     data: {
                         employees: [{
                             emp_no: 10005,

@@ -1,17 +1,20 @@
+const GraphQL = require("graphql")
 const worldql = require("../src/worldql-core")
 
 describe("Test worldql with OpenAPI datasource", () => {
     jest.setTimeout(30000)
 
     test("get pet with id 1", () => {
-        const gqlApis = [
-            {
-                source: {
-                    type: "OPEN_API",
+        const wqlConf = {
+            sources: {
+                petstore: {
                     url: "http://localhost:8085/api-docs",
+                    type: "OPEN_API",
+                    converter: "OASGRAPH"
                 }
-            }
-        ]
+            },
+            stitches: []
+        }
 
         const gqlQuery = `
         {
@@ -26,9 +29,13 @@ describe("Test worldql with OpenAPI datasource", () => {
             }
         }`
 
-        return worldql.buildGqlSchema(gqlApis).then(gqlSchema => {
-            return worldql.exec(gqlSchema, gqlQuery).then(response => {
-                expect(response).toMatchObject({
+        return worldql.buildGqlSchema(wqlConf).then(gqlSchema => {
+            return GraphQL.graphql({
+                schema: gqlSchema,
+                source: gqlQuery,
+                // variableValues: gqlVariables
+            }).then(gqlResponse => {
+                expect(gqlResponse).toMatchObject({
                     data: {
                         viewerApiKey: {
                             aPet: {
