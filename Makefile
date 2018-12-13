@@ -1,4 +1,4 @@
-.PHONY : install test push force_push github graphiql playground
+.PHONY : awl install test push force_push github graphiql playground
 
 install:
 	rm -f yarn.lock || true
@@ -9,6 +9,9 @@ playground:
 
 graphiql:
 	yarn graphiql
+
+awl:
+	yarn awl
 
 test:
 	yarn test
