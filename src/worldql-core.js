@@ -58,7 +58,7 @@ const WorldQL = (function () {
                     [stitch.fieldName](parentResp, args, context, info) {
                         const params = stitch.resolver.params
 
-                        let argsForStitch = {}
+                        let argsForStitch = args
                         if (!!params) {
                             _buildParentParams(parentResp, params.fromParent).map(param => Object.assign(argsForStitch, param))
                             Object.assign(argsForStitch, params.static, params.fromVariables)
@@ -72,7 +72,7 @@ const WorldQL = (function () {
                             context,
                             info
                         })
-
+                        
                         return resolver
                     }
                 }

@@ -12,19 +12,19 @@ describe("Test the worldql", () => {
                     type: "OPEN_API",
                     converter: "OASGRAPH"
                 },
-                // books: {
-                //     url: "http://localhost:8090",
-                //     type: "GRAPHQL",
-                // },
-                // company: {
-                //     type: 'ELASTICSEARCH',
-                //     url: 'http://localhost:9200',
-                //     graphqlTypeName: "company",
-                //     elasticIndex: 'companydatabase',
-                //     elasticType: 'employees',
-                //     pluralFields: ['skills', 'languages'],
-                //     apiVersion: '5.6',
-                // },
+                books: {
+                    url: "http://localhost:8090",
+                    type: "GRAPHQL",
+                },
+                company: {
+                    type: 'ELASTICSEARCH',
+                    url: 'http://localhost:9200',
+                    graphqlTypeName: "company",
+                    elasticIndex: 'companydatabase',
+                    elasticType: 'employees',
+                    pluralFields: ['skills', 'languages'],
+                    apiVersion: '5.6',
+                },
                 employees: {
                     type: "MYSQL",
                     host: "localhost",

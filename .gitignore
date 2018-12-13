@@ -1,4 +1,5 @@
-worldql-core.awl.test.js
+worldql-playground.awl.js
+
 # babel build
 lib/
 
