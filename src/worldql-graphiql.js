@@ -17,17 +17,6 @@ const gqlApis = [
         //     apiVersion: '5.6',
         //   },
         // },
-        source: {
-            url: "http://tpels005s.priv.atos.fr:9200/",
-            type: "ELASTICSEARCH",
-            params: {
-                graphqlTypeName:  "itdiscovery",
-                elasticIndex: "itdiscovery_2018.11.25",
-                elasticType: "default",
-                apiVersion: "5.6",
-            },
-        },
-    },
 ]
 
 worldql.buildGqlSchema(gqlApis).then(gqlSchema => {

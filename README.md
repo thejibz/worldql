@@ -3,7 +3,7 @@
 **Want to query the world with GraphQL ?** 
 Search no more, you have found **the right NodeJS library** !
 
-WorldQL allows you to **merge and stitch all yours datasources into a single GraphQL endpoint.**
+WorldQL allows you to **merge and stitch all your datasources into a single GraphQL endpoint.**
 
 # Providers supported
 
@@ -16,7 +16,7 @@ WorldQL allows you to **merge and stitch all yours datasources into a single Gra
 
 ## What it does ?
 
-![enter image description here](./What-it-does.jpg)
+![What it does ?](./What-it-does.jpg)
 
 ##  How it works ?
 
