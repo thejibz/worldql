@@ -17,6 +17,7 @@ const gqlApis = [
         //     apiVersion: '5.6',
         //   },
         // },
+    }
 ]
 
 worldql.buildGqlSchema(gqlApis).then(gqlSchema => {

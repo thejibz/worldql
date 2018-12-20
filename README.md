@@ -9,9 +9,9 @@ WorldQL allows you to **merge and stitch all your datasources into a single Grap
 
 |                  |Third-party library used       |
 |------------------|-------------------------------|
-|GraphQL	   |[apollo-link-http](https://github.com/apollographql/apollo-link)|
-|MySQL        |graphql-compose-mysql (soon published) |
-|ElasticSearch     | [graphql-compose-elasticsearch](https://github.com/graphql-compose/graphql-compose-elasticsearch)            |
+|GraphQL	       |[apollo-link-http](https://github.com/apollographql/apollo-link)|
+|MySQL             |graphql-compose-mysql (soon published) |
+|ElasticSearch     |[graphql-compose-elasticsearch](https://github.com/graphql-compose/graphql-compose-elasticsearch)|
 |OpenAPI (REST API)|[oasgraph](https://github.com/strongloop/oasgraph)|
 
 ## What it does ?
@@ -26,13 +26,12 @@ WorldQL allows you to **merge and stitch all your datasources into a single Grap
     const wqlConf = {
                 sources: {
                     petstore: {
-                        url: "http://localhost:8085/api-docs",
                         type: "OPEN_API",
-                        converter: "OASGRAPH"
+                        url: "http://localhost:8085/api-docs",
                     },
                     books: {
-                         url: "http://localhost:8090",
-                         type: "GRAPHQL",
+                        type: "GRAPHQL",
+                        url: "http://localhost:8090", 
                     },
                     company: {
                          type: 'ELASTICSEARCH',
@@ -45,13 +44,13 @@ WorldQL allows you to **merge and stitch all your datasources into a single Grap
                     },
                     employees: {
                         type: "MYSQL",
-                        host: "localhost",
-                        port: "3306",
-                        user: "root",
-                        password: "secret",
-                        database: "employees",
-                        mysqlTableName: "employees",
-                        graphqlTypeName: "employeesT",
+                        mysqlConfig: {
+                            host: "localhost",
+                            port: "3306",
+                            user: "root",
+                            password: "secret",
+                            database: "employees",
+                        }
                     },
                 },
             }
@@ -85,7 +84,7 @@ WorldQL allows you to **merge and stitch all your datasources into a single Grap
         worldql.buildGqlSchema(wqlConf).then(gqlSchema => {
                     ...
         })
-### 4. Profit !!! (With apollo-server for exemple)
+### 4. Profit !!! (With apollo-server for example)
 
     const worldql = require("./worldql-core")
     const wqlConf = { ... }
