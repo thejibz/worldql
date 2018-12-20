@@ -50,17 +50,18 @@ const WorldQL = (function () {
                         ${stitch.fieldName}: ${stitch.fieldType}
                     }`
 
-            const remoteSchema = wqlSchemas // [ { sourceName1: GQLSchema...}, { sourceName2: GQLSchema...}, ...]
+            const remoteSchema = wqlSchemas
+                // [ { sourceName1: GQLSchema...}, { sourceName2: GQLSchema...}, ...]
                 .find(wqlSchema => !!wqlSchema[stitch.resolver.source])/* { sourceName1: GQLSchema...} */[stitch.resolver.source] // { GQLSchema... }
 
             const resolver = {
                 [stitch.parentType]: {
-                    [stitch.fieldName](parentResp, args, context, info) {
+                    [stitch.fieldName](source, args, context, info) {
                         const params = stitch.resolver.params
-
+                        
                         let argsForStitch = args
                         if (!!params) {
-                            _buildParentParams(parentResp, params.fromParent).map(param => Object.assign(argsForStitch, param))
+                            _buildParentParams(source, params.fromParent).map(param => Object.assign(argsForStitch, param))
                             Object.assign(argsForStitch, params.static, params.fromVariables)
                         }
 
@@ -72,7 +73,7 @@ const WorldQL = (function () {
                             context,
                             info
                         })
-                        
+
                         return resolver
                     }
                 }
@@ -83,18 +84,17 @@ const WorldQL = (function () {
 
     }
 
-    function _buildParentParams(parentResp, parentParams) {
+    function _buildParentParams(source, parentParams) {
         if (!parentParams)
             return {}
 
         const params =
-            // { param1: parentFieldName1, param2: parentFieldName2, ...}
+            // { param1: (parent) => { parent.fieldName1 }, param2: (parent) => { parent.fieldName2[0] }, ...}
             Object.entries(parentParams)
-                // [ [ param1, parentFieldName1], [ param2: parentFieldName2 ], ...]
+                // [ [ param1, (parent) => { parent.fieldName1 }], (parent) => { parent.fieldName2[0] }, ...]
                 .map(entry => {
-                    return { [entry[0]]: parentResp[entry[1]] }
+                    return { [entry[0]]: entry[1](source) } // [ { param1: parent.fieldName1 }, { param2: parent.fieldName2[0] }, ...]
                 })
-        // [ { param1: parentFieldValue1 }, { param2: parentFieldValue2 }, ...]
 
         return params
     }
@@ -109,16 +109,17 @@ const WorldQL = (function () {
                     // [ { sourceName1: GQLSchema...}, { sourceName2: GQLSchema...}, ...]
                     .map(wqlSchema => Object.values(wqlSchema))
                     // [ [ GQLSchema {...} ], [ GQLSchema {...} ], ...]
-                    .reduce((acc, gqlSchema) => acc.concat(gqlSchema), [])
-                // [ GQLSchema {...}, GQLSchema {...}, ...]
+                    .reduce((acc, gqlSchema) => acc.concat(gqlSchema), []) // [ GQLSchema {...}, GQLSchema {...}, ...]
 
                 const resolvers = []
                 const stitches = _buildStitches(wqlConf.stitches, wqlSchemas)
 
-                stitches.map(stitch => {
-                    schemas.push(stitch.linkTypeDef)
-                    resolvers.push(stitch.resolver)
-                })
+                if (!!stitches) {
+                    stitches.map(stitch => {
+                        schemas.push(stitch.linkTypeDef)
+                        resolvers.push(stitch.resolver)
+                    })
+                }
 
                 return gqltools.mergeSchemas({
                     schemas: schemas,

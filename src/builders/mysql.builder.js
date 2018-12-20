@@ -6,15 +6,7 @@ const { composeWithMysql } = require("graphql-compose-mysql")
  */
 module.exports.buildGqlSchemaFromMysql = (sourceName, sourceConf) => {
     return composeWithMysql({
-        graphqlTypeName: sourceConf.graphqlTypeName,
-        mysqlTableName: sourceConf.mysqlTableName,
-        mysqlConfig: {
-            host: sourceConf.host,
-            port: sourceConf.port,
-            user: sourceConf.user,
-            password: sourceConf.password,
-            database: sourceConf.database,
-        },
+        mysqlConfig: sourceConf.mysqlConfig
     }).then(gqlSchema => {
         return { [sourceName]: gqlSchema }
     })

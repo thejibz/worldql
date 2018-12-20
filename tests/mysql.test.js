@@ -9,13 +9,13 @@ describe("Test worldql with MySQL datasource", () => {
             sources: {
                 employees: {
                     type: "MYSQL",
-                    host: "localhost",
-                    port: "3306",
-                    user: "root",
-                    password: "secret",
-                    database: "employees",
-                    mysqlTableName: "employees",
-                    graphqlTypeName: "employeesT",
+                    mysqlConfig: {
+                        host: "localhost",
+                        port: "3306",
+                        user: "root",
+                        password: "secret",
+                        database: "employees",
+                    }
                 },
             },
             stitches: []
@@ -38,6 +38,7 @@ describe("Test worldql with MySQL datasource", () => {
                 schema: gqlSchema,
                 source: gqlQuery,
                 // variableValues: gqlVariables
+                contextValue: {}
             }).then(gqlResponse => {
                 expect(gqlResponse).toMatchObject({
                     data: {

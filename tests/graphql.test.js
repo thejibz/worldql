@@ -28,6 +28,7 @@ describe("Test the worldql for graphql", () => {
                 schema: gqlSchema,
                 source: gqlQuery,
                 // variableValues: gqlVariables
+                contextValue: {}
             }).then(gqlResponse => {
                 expect(gqlResponse).toMatchObject({
                     data: {

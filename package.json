@@ -30,7 +30,7 @@
     "jest": "^23.6.0"
   },
   "scripts": {
-    "test": "DEBUG='worldql-core' jest",
+    "test": "DEBUG='worldql-core' jest --forceExit --detectOpenHandles",
     "awl": "DEBUG='worldql-core' node src/worldql-playground.awl.js",
     "playground": "DEBUG='worldql-core' node src/worldql-playground.js",
     "graphiql": "DEBUG='worldql-core' node src/worldql-graphiql.js"

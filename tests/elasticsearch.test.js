@@ -39,6 +39,7 @@ describe("Test the worldql for elasticsearch", () => {
                 schema: gqlSchema,
                 source: gqlQuery,
                 // variableValues: gqlVariables
+                contextValue: {}
             }).then(gqlResponse => {
                 expect(gqlResponse).toMatchObject({
                     data: {

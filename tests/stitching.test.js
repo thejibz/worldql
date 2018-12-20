@@ -27,13 +27,13 @@ describe("Test the worldql", () => {
                 },
                 employees: {
                     type: "MYSQL",
-                    host: "localhost",
-                    port: "3306",
-                    user: "root",
-                    password: "secret",
-                    database: "employees",
-                    mysqlTableName: "employees",
-                    graphqlTypeName: "employeesT",
+                    mysqlConfig: {
+                        host: "localhost",
+                        port: "3306",
+                        user: "root",
+                        password: "secret",
+                        database: "employees",
+                    }
                 },
             },
             stitches: [
@@ -47,7 +47,7 @@ describe("Test the worldql", () => {
                         addQueryParams: true,
                         params: {
                             static: {},
-                            fromParent: { apiKey: "first_name", },
+                            fromParent: { apiKey: (parent) => parent.first_name },
                             fromVariables: {},
                         }
                     }
@@ -75,6 +75,7 @@ describe("Test the worldql", () => {
                 schema: gqlSchema,
                 source: gqlQuery,
                 // variableValues: gqlVariables
+                contextValue: {}
             }).then(gqlResponse => {
                 expect(gqlResponse).toMatchObject({
                     data: {
