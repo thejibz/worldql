@@ -8,9 +8,9 @@ describe("Test worldql with OpenAPI datasource", () => {
         const wqlConf = {
             sources: {
                 petstore: {
-                    url: "http://localhost:8085/api-docs",
+                    url: "http://localhost:8080/api/swagger.json",
                     type: "OPEN_API",
-                    converter: "OASGRAPH"
+                    preferedScheme: "http"
                 }
             },
             stitches: []

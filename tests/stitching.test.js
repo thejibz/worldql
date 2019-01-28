@@ -8,7 +8,7 @@ describe("Test the worldql", () => {
         const wqlConf = {
             sources: {
                 petstore: {
-                    url: "http://localhost:8085/api-docs",
+                    url: "http://localhost:8080/api/swagger.json",
                     type: "OPEN_API",
                     converter: "OASGRAPH"
                 },
@@ -44,7 +44,6 @@ describe("Test the worldql", () => {
                     resolver: {
                         source: "petstore",
                         query: "viewerApiKey",
-                        addQueryParams: true,
                         params: {
                             static: {},
                             fromParent: { apiKey: (parent) => parent.first_name },
@@ -52,6 +51,20 @@ describe("Test the worldql", () => {
                         }
                     }
                 },
+                {
+                    parentType: "employeesT",
+                    fieldName: "petOfEmployee",
+                    fieldType: "viewerApiKey",
+                    resolver: {
+                        source: "petstore",
+                        query: "viewerApiKey",
+                        params: {
+                            static: {},
+                            fromParent: { apiKey: (parent) => parent.first_name },
+                            fromVariables: {},
+                        }
+                    }
+                }
             ]
         }
 

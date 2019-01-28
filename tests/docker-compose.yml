@@ -34,14 +34,12 @@ services:
     image: adminer
     restart: always
     ports:
-      - 8080:8080
+      - 8085:8080
 
   openapi:
-    image: thejibz/petstore
-    volumes:
-      - ./data/openapi/swagger.yaml:/app/api/swagger.yaml
+    image: swaggerapi/petstore
     ports:
-      - 8085:8080
+      - 8080:8080
 
   graphql:
     image: thejibz/graphql-server-example

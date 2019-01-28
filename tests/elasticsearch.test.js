@@ -9,12 +9,14 @@ describe("Test the worldql for elasticsearch", () => {
             sources: {
                 company: {
                     type: 'ELASTICSEARCH',
-                    url: 'http://localhost:9200',
+                    esClientConf: {
+                        host: 'http://localhost:9200',
+                        apiVersion: '5.6',
+                    },
                     graphqlTypeName: "company",
                     elasticIndex: 'companydatabase',
                     elasticType: 'employees',
                     pluralFields: ['skills', 'languages'],
-                    apiVersion: '5.6',
                 }
             },
             stitches: []

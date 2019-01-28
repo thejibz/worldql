@@ -4,10 +4,7 @@ const { composeWithElastic, fetchElasticMapping } = require("graphql-compose-ela
 const debug = require("debug")("worldql-core")
 
 module.exports.buildGqlSchemaFromEs = (sourceName, sourceConf) => {
-    const elasticClient = new elasticsearch.Client({
-        host: sourceConf.url,
-        apiVersion: sourceConf.apiVersion,
-    })
+    const elasticClient = new elasticsearch.Client(sourceConf.esClientConf)
 
     return fetchElasticMapping({
         elasticIndex: sourceConf.elasticIndex,
