@@ -23,7 +23,7 @@ async function main() {
                 type: "OPEN_API",
                 oasGraphConf: {
                     viewer: false,
-                    preferedScheme: "http",
+                    preferredScheme: "http",
                 }
             },
             books: {
@@ -42,6 +42,7 @@ async function main() {
             employees: {
                 type: "MYSQL",
                 mysqlConfig: {
+                    debug: ['ComQueryPacket'],
                     host: "localhost",
                     port: "3306",
                     user: "root",
@@ -60,7 +61,38 @@ async function main() {
                     query: "pet",
                     params: {
                         static: {},
-                        fromParent: { petId: (parent) => parent.emp_no%10 },
+                        fromParent: { petId: (parent) => parent.emp_no % 10 },
+                        fromVariables: {},
+                    }
+                }
+            },
+            {
+                parentType: "employeesT",
+                fieldName: "currentDept",
+                fieldType: "[current_dept_empT]",
+                resolver: {
+                    source: "employees",
+                    query: "current_dept_emp",
+                    params: {
+                        static: {},
+                        fromParent: { "emp_no": (parent) => parent.emp_no },
+                        fromVariables: {},
+                    }
+                }
+            },
+            {
+                parentType: "current_dept_empT",
+                fieldName: "currentSalary",
+                fieldType: "[salariesT]",
+                resolver: {
+                    source: "employees",
+                    query: "salaries",
+                    params: {
+                        static: {},
+                        fromParent: {
+                            emp_no: (parent) => parent.emp_no,
+                            to_date: (parent) => parent.to_date
+                        },
                         fromVariables: {},
                     }
                 }
