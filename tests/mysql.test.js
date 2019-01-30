@@ -6,7 +6,7 @@ describe("Test worldql with MySQL datasource", () => {
 
     test("get all fields for employee n°10005", () => {
         const wqlConf = {
-            sources: {
+            datasources: {
                 employees: {
                     type: "MYSQL",
                     mysqlConfig: {

@@ -17,7 +17,7 @@ query {
 
 async function main() {
     const wqlConf = {
-        sources: {
+        datasources: {
             petstore: {
                 url: "http://localhost:8080/api/swagger.json",
                 type: "OPEN_API",
@@ -55,45 +55,30 @@ async function main() {
             {
                 parentType: "employeesT",
                 fieldName: "petOfEmployee",
-                fieldType: "pet",
                 resolver: {
-                    source: "petstore",
+                    datasource: "petstore",
                     query: "pet",
-                    params: {
-                        static: {},
-                        fromParent: { petId: (parent) => parent.emp_no % 10 },
-                        fromVariables: {},
-                    }
+                    args: { petId: (parent) => parent.emp_no % 10 }
                 }
             },
             {
                 parentType: "employeesT",
                 fieldName: "currentDept",
-                fieldType: "[current_dept_empT]",
                 resolver: {
-                    source: "employees",
+                    datasource: "employees",
                     query: "current_dept_emp",
-                    params: {
-                        static: {},
-                        fromParent: { "emp_no": (parent) => parent.emp_no },
-                        fromVariables: {},
-                    }
+                    args: { emp_no: (parent) => parent.emp_no }
                 }
             },
             {
                 parentType: "current_dept_empT",
                 fieldName: "currentSalary",
-                fieldType: "[salariesT]",
                 resolver: {
-                    source: "employees",
+                    datasource: "employees",
                     query: "salaries",
-                    params: {
-                        static: {},
-                        fromParent: {
-                            emp_no: (parent) => parent.emp_no,
-                            to_date: (parent) => parent.to_date
-                        },
-                        fromVariables: {},
+                    args: {
+                        emp_no: () => 10001,//(parent, vars) => parent.emp_no,
+                        to_date: (parent) => parent.to_date
                     }
                 }
             },

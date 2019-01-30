@@ -6,7 +6,7 @@ describe("Test the worldql", () => {
 
     test("stitch: mysql => openapi", () => {
         const wqlConf = {
-            sources: {
+            datasources: {
                 petstore: {
                     url: "http://localhost:8080/api/swagger.json",
                     type: "OPEN_API",
@@ -40,9 +40,8 @@ describe("Test the worldql", () => {
                 {
                     parentType: "employeesT",
                     fieldName: "petOfEmployee",
-                    fieldType: "viewerApiKey",
                     resolver: {
-                        source: "petstore",
+                        datasource: "petstore",
                         query: "viewerApiKey",
                         params: {
                             static: {},
@@ -54,9 +53,8 @@ describe("Test the worldql", () => {
                 {
                     parentType: "employeesT",
                     fieldName: "petOfEmployee",
-                    fieldType: "viewerApiKey",
                     resolver: {
-                        source: "petstore",
+                        datasource: "petstore",
                         query: "viewerApiKey",
                         params: {
                             static: {},

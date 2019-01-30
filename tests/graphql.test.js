@@ -6,7 +6,7 @@ describe("Test the worldql for graphql", () => {
 
     test("get all books", () => {
         const wqlConf = {
-            sources: {
+            datasources: {
                 books: {
                     url: "http://localhost:8090",
                     type: "GRAPHQL",

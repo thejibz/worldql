@@ -6,7 +6,7 @@ describe("Test the worldql for elasticsearch", () => {
 
     test("get all employees of age 33", () => {
         const wqlConf = {
-            sources: {
+            datasources: {
                 company: {
                     type: 'ELASTICSEARCH',
                     esClientConf: {
