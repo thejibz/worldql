@@ -1,8 +1,10 @@
+"use strict"
+
 const debug = require("debug")("worldql-core")
 
-const GraphQL = require("graphql")
+const zealit = require("zealit")
+
 const gqltools = require("graphql-tools")
-const { schemaComposer, TypeMapper } = require("graphql-compose")
 
 const oasBuilder = require("./builders/openapi.builder")
 const mysqlBuilder = require("./builders/mysql.builder")
@@ -10,18 +12,18 @@ const esBuilder = require("./builders/elasticsearch.builder")
 const gqlBuilder = require("./builders/graphql.builder")
 
 const WorldQL = (function () {
-    const SOURCE_TYPE = Object.freeze({
+    const SOURCE_TYPE = zealit({
         OPEN_API: "OPEN_API",
         GRAPHQL: "GRAPHQL",
         ELASTICSEARCH: "ELASTICSEARCH",
         MYSQL: "MYSQL"
-    })
+    }, { freeze: true } )
 
     function _createGqlSchemasFromDs(datasources) {
         return Object.entries(datasources).map(ds => {
             const dsName = ds[0]
             const dsConf = ds[1]
-
+            
             switch (dsConf.type) {
                 case SOURCE_TYPE.OPEN_API:
                     return oasBuilder.buildGqlSchemaFromOas(dsName, dsConf)
@@ -74,8 +76,7 @@ const WorldQL = (function () {
                         let stitchArgs = {}
 
                         if (!!stitch.resolver.args) {
-                            stitchArgs = _buildStitchArgs(stitch.resolver.args, parent, info.variableValues)
-                                .reduce((acc, arg) => Object.assign(acc, arg))
+                            stitchArgs = _buildStitchArgs(stitch.resolver.args, parent, info.variableValues)                                
                         }
 
                         const resolver = info.mergeInfo.delegateToSchema({
@@ -98,17 +99,25 @@ const WorldQL = (function () {
     }
 
     function _buildStitchArgs(stitchArgs, parent, vars) {
-        if (!stitchArgs)
-            return {}
+        // Throw a ReferenceError if field used for stitching is not present in the parent object
+        parent = zealit(parent, { catch: (err) => {
+            throw(`${err}. Check that the parent object fetch it and that there is no typo in the stitching configuration.`)
+        }})
+        // Throw a ReferenceError if field used for stitching is not present in the query variables
+        vars = zealit(vars, { catch: (err) => {
+            throw(`${err}. Check that the query variables contain it and that there is no typo in the stitching configuration.`)
+        }})
 
         const args =
-            // { param1: (parent) => { parent.fieldName1 }, param2: (parent) => { parent.fieldName2[0] }, ...}
+            // { param1: (parent, vars) => { parent.fieldName1 }, param2: (parent, vars) => { vars.fieldName2 }, ...}
             Object.entries(stitchArgs)
-                // [ [ param1, (parent) => { parent.fieldName1 }], (parent) => { parent.fieldName2[0] }, ...]
+                // [ [ param1, (parent, vars) => { parent.fieldName1 }], (parent, vars) => { vars.fieldName2 }, ...]
                 .map(entry => {
-                    // [ { param1: parent.fieldName1 }, { param2: parent.fieldName2[0] }, ...]
                     return { [entry[0]]: entry[1](parent, vars) }
                 })
+                // [ { param1: parent.fieldName1 }, { param2: vars.fieldName2 }, ...]
+                .reduce((acc, arg) => Object.assign(acc, arg))
+                // { param1: parent.fieldName1, param2: vars.fieldName2, ... }
 
         return args
     }

@@ -42,7 +42,7 @@ async function main() {
             employees: {
                 type: "MYSQL",
                 mysqlConfig: {
-                    debug: ['ComQueryPacket'],
+                    //debug: ['ComQueryPacket'],
                     host: "localhost",
                     port: "3306",
                     user: "root",
@@ -77,7 +77,7 @@ async function main() {
                     datasource: "employees",
                     query: "salaries",
                     args: {
-                        emp_no: () => 10001,//(parent, vars) => parent.emp_no,
+                        emp_no: (parent, vars) => vars.emp_id2,
                         to_date: (parent) => parent.to_date
                     }
                 }

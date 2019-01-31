@@ -20,7 +20,8 @@
     "mysql": "^2.16.0",
     "node-fetch": "^2.3.0",
     "oasgraph": "^0.10.1",
-    "swagger-parser": "^5.0.0"
+    "swagger-parser": "^5.0.0",
+    "zealit": "^2.4.1"
   },
   "devDependencies": {
     "apollo-server": "^2.2.2",
