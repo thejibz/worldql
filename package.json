@@ -33,7 +33,7 @@
   "scripts": {
     "test": "DEBUG='worldql-core' jest --forceExit --detectOpenHandles",
     "awl": "DEBUG='worldql-core' node src/worldql-playground.awl.js",
-    "playground": "DEBUG='worldql-core,http' node src/worldql-playground.js",
+    "playground": "DEBUG='worldql-core' node src/worldql-playground.js",
     "graphiql": "DEBUG='worldql-core' node src/worldql-graphiql.js"
   },
   "jest": {

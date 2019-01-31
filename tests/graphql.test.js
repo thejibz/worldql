@@ -12,7 +12,6 @@ describe("Test the worldql for graphql", () => {
                     type: "GRAPHQL",
                 },
             },
-            stitches: []
         }
 
         const gqlQuery = `

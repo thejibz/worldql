@@ -18,7 +18,6 @@ describe("Test worldql with MySQL datasource", () => {
                     }
                 },
             },
-            stitches: []
         }
 
         const gqlQuery = `

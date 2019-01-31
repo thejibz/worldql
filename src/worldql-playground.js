@@ -77,11 +77,22 @@ async function main() {
                     datasource: "employees",
                     query: "salaries",
                     args: {
-                        emp_no: (parent, vars) => vars.emp_id2,
-                        to_date: (parent) => parent.to_date
+                        emp_no: (parent) => parent.emp_no,
+                        to_date: (parent) => parent.to_datedf
                     }
                 }
             },
+            {
+                parentType: "salariesT",
+                fieldName: "esSalary",
+                resolver: {
+                    datasource: "company",
+                    query: "company",
+                    args: {
+                        q: (parent) => `Employee.Age=${parent.salary%50}`,
+                    }
+                }
+            }
         ]
     }
 

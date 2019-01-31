@@ -4,29 +4,31 @@ const worldql = require("../src/worldql-core")
 describe("Test worldql with OpenAPI datasource", () => {
     jest.setTimeout(30000)
 
-    test("get pet with id 1", () => {
+    test("get pet with id 2", () => {
         const wqlConf = {
             datasources: {
                 petstore: {
                     url: "http://localhost:8080/api/swagger.json",
                     type: "OPEN_API",
-                    preferedScheme: "http"
-                }
+                    oasGraphConf: {
+                        viewer: false,
+                        preferredScheme: "http",
+                    }
+                },
             },
             stitches: []
         }
 
         const gqlQuery = `
         {
-            viewerApiKey(apiKey:"qsfqsdfqsdqfs") {
-                aPet(petId:0){
+            pet(petId: 2) {
                 id
                 name
-                    category {
-                        id
-                    }
+                category {
+                  id
                 }
-            }
+              }
+            
         }`
 
         return worldql.buildGqlSchema(wqlConf).then(gqlSchema => {
@@ -37,13 +39,11 @@ describe("Test worldql with OpenAPI datasource", () => {
             }).then(gqlResponse => {
                 expect(gqlResponse).toMatchObject({
                     data: {
-                        viewerApiKey: {
-                            aPet: {
-                                id: 0,
-                                name: "doggie",
-                                category: {
-                                    id: 6
-                                }
+                        pet: {
+                            id: 2,
+                            name: "Cat 2",
+                            category: {
+                                id: 2
                             }
                         }
                     }

@@ -19,7 +19,6 @@ describe("Test the worldql for elasticsearch", () => {
                     pluralFields: ['skills', 'languages'],
                 }
             },
-            stitches: []
         }
 
         const gqlQuery = `

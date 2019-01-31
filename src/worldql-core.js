@@ -17,13 +17,13 @@ const WorldQL = (function () {
         GRAPHQL: "GRAPHQL",
         ELASTICSEARCH: "ELASTICSEARCH",
         MYSQL: "MYSQL"
-    }, { freeze: true } )
+    }, { freeze: true })
 
     function _createGqlSchemasFromDs(datasources) {
         return Object.entries(datasources).map(ds => {
             const dsName = ds[0]
             const dsConf = ds[1]
-            
+
             switch (dsConf.type) {
                 case SOURCE_TYPE.OPEN_API:
                     return oasBuilder.buildGqlSchemaFromOas(dsName, dsConf)
@@ -44,9 +44,9 @@ const WorldQL = (function () {
     }
 
     function _buildStitches(stitches, wqlSchemas) {
-
-        if (!stitches)
-            return
+        if (!stitches || !Array.isArray(stitches) || !stitches.length > 0 || !wqlSchemas || !Array.isArray(wqlSchemas) || !wqlSchemas.length > 0) {
+            return []
+        }
 
         return stitches.map(stitch => {
             let remoteSchema = wqlSchemas
@@ -76,7 +76,7 @@ const WorldQL = (function () {
                         let stitchArgs = {}
 
                         if (!!stitch.resolver.args) {
-                            stitchArgs = _buildStitchArgs(stitch.resolver.args, parent, info.variableValues)                                
+                            stitchArgs = _buildStitchArgs(stitch.resolver.args, parent, info.variableValues)
                         }
 
                         const resolver = info.mergeInfo.delegateToSchema({
@@ -100,13 +100,17 @@ const WorldQL = (function () {
 
     function _buildStitchArgs(stitchArgs, parent, vars) {
         // Throw a ReferenceError if field used for stitching is not present in the parent object
-        parent = zealit(parent, { catch: (err) => {
-            throw(`${err}. Check that the parent object fetch it and that there is no typo in the stitching configuration.`)
-        }})
+        parent = zealit(parent, {
+            catch: (err) => {
+                throw (`${err}. Check that the parent object fetch it and that there is no typo in the stitching configuration.`)
+            }
+        })
         // Throw a ReferenceError if field used for stitching is not present in the query variables
-        vars = zealit(vars, { catch: (err) => {
-            throw(`${err}. Check that the query variables contain it and that there is no typo in the stitching configuration.`)
-        }})
+        vars = zealit(vars, {
+            catch: (err) => {
+                throw (`${err}. Check that it is in the query's variables and that there is no typo in the stitching configuration.`)
+            }
+        })
 
         const args =
             // { param1: (parent, vars) => { parent.fieldName1 }, param2: (parent, vars) => { vars.fieldName2 }, ...}
@@ -116,8 +120,7 @@ const WorldQL = (function () {
                     return { [entry[0]]: entry[1](parent, vars) }
                 })
                 // [ { param1: parent.fieldName1 }, { param2: vars.fieldName2 }, ...]
-                .reduce((acc, arg) => Object.assign(acc, arg))
-                // { param1: parent.fieldName1, param2: vars.fieldName2, ... }
+                .reduce((acc, arg) => Object.assign(acc, arg)) // { param1: parent.fieldName1, param2: vars.fieldName2, ... }
 
         return args
     }
@@ -128,21 +131,18 @@ const WorldQL = (function () {
             const wqlSchemas = _createGqlSchemasFromDs(wqlConf.datasources)
 
             const finalSchema = Promise.all(wqlSchemas).then(wqlSchemas => {
+                const resolvers = []
                 const schemas = wqlSchemas
                     // [ { datasourceName1: GQLSchema...}, { datasourceName2: GQLSchema...}, ...]
                     .map(wqlSchema => Object.values(wqlSchema))
                     // [ [ GQLSchema {...} ], [ GQLSchema {...} ], ...]
                     .reduce((acc, gqlSchema) => acc.concat(gqlSchema), []) // [ GQLSchema {...}, GQLSchema {...}, ...]
 
-                const resolvers = []
                 const stitches = _buildStitches(wqlConf.stitches, wqlSchemas)
-
-                if (!!stitches) {
-                    stitches.map(stitch => {
-                        schemas.push(stitch.linkTypeDef)
-                        resolvers.push(stitch.resolver)
-                    })
-                }
+                stitches.map(stitch => {
+                    schemas.push(stitch.linkTypeDef)
+                    resolvers.push(stitch.resolver)
+                })
 
                 return gqltools.mergeSchemas({
                     schemas: schemas,
