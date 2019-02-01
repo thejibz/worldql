@@ -58,7 +58,7 @@ async function main() {
                 resolver: {
                     datasource: "petstore",
                     query: "pet",
-                    args: { petId: (parent) => parent.emp_no % 10 }
+                    args: { petId: (parent, vars) => parent.emp_no % 10 }
                 }
             },
             {

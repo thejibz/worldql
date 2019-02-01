@@ -8,7 +8,7 @@
             "type": "node",
             "request": "launch",
             "name": "playground",
-            "program": "${workspaceFolder}/src/worldql-playground.js",
+            "program": "${workspaceFolder}/src/worldql-playground.awl.js",
             "env": {
                 "DEBUG": "worldql-core,http"
             }
