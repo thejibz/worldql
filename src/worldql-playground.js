@@ -77,8 +77,8 @@ async function main() {
                     datasource: "employees",
                     query: "salaries",
                     args: {
-                        emp_no: (parent) => parent.emp_no,
-                        to_date: (parent) => parent.to_datedf
+                        emp_no: (parent, vars) => vars.emp_id,
+                        to_date: (parent) => parent.to_date
                     }
                 }
             },
@@ -89,7 +89,7 @@ async function main() {
                     datasource: "company",
                     query: "company",
                     args: {
-                        q: (parent) => `Employee.Age=${parent.salary%50}`,
+                        q: (parent) => `Employee.Age=${parent.salary % 50}`,
                     }
                 }
             }

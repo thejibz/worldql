@@ -126,8 +126,8 @@ describe("Test the worldql", () => {
                 contextValue: {}
             }).then(gqlResponse => {
                 expect(gqlResponse).toMatchObject({
-                    data: {
-                        employees: [
+                    "data": {
+                        "employees": [
                             {
                                 "gender": "M",
                                 "first_name": "Kyoichi",
@@ -144,32 +144,27 @@ describe("Test the worldql", () => {
                                                     "hits": [
                                                         {
                                                             "_source": {
-                                                                "Salary": 87000
+                                                                "Salary": 94000
                                                             }
                                                         },
                                                         {
                                                             "_source": {
-                                                                "Salary": 80000
+                                                                "Salary": 94000
                                                             }
                                                         },
                                                         {
                                                             "_source": {
-                                                                "Salary": 88000
+                                                                "Salary": 84000
                                                             }
                                                         },
                                                         {
                                                             "_source": {
-                                                                "Salary": 86000
+                                                                "Salary": 85000
                                                             }
                                                         },
                                                         {
                                                             "_source": {
-                                                                "Salary": 79000
-                                                            }
-                                                        },
-                                                        {
-                                                            "_source": {
-                                                                "Salary": 74000
+                                                                "Salary": 98000
                                                             }
                                                         },
                                                         {
@@ -184,12 +179,17 @@ describe("Test the worldql", () => {
                                                         },
                                                         {
                                                             "_source": {
-                                                                "Salary": 84000
+                                                                "Salary": 53000
                                                             }
                                                         },
                                                         {
                                                             "_source": {
-                                                                "Salary": 93000
+                                                                "Salary": 59000
+                                                            }
+                                                        },
+                                                        {
+                                                            "_source": {
+                                                                "Salary": 52000
                                                             }
                                                         }
                                                     ]

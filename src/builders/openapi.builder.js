@@ -1,5 +1,5 @@
 const SwaggerParser = require("swagger-parser")
-const OASGraph = require("oasgraph")
+const OASGraph = require("oasgraph-jibz")
 
 module.exports.buildGqlSchemaFromOas = (sourceName, sourceConf) => {
     return SwaggerParser.validate(sourceConf.url).then(openApiSchema => {

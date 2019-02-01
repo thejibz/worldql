@@ -3,6 +3,7 @@
 const debug = require("debug")("worldql-core")
 
 const zealit = require("zealit")
+const is = require("is_js")
 
 const gqltools = require("graphql-tools")
 
@@ -10,6 +11,7 @@ const oasBuilder = require("./builders/openapi.builder")
 const mysqlBuilder = require("./builders/mysql.builder")
 const esBuilder = require("./builders/elasticsearch.builder")
 const gqlBuilder = require("./builders/graphql.builder")
+
 
 const WorldQL = (function () {
     const SOURCE_TYPE = zealit({
@@ -44,7 +46,7 @@ const WorldQL = (function () {
     }
 
     function _buildStitches(stitches, wqlSchemas) {
-        if (!stitches || !Array.isArray(stitches) || !stitches.length > 0 || !wqlSchemas || !Array.isArray(wqlSchemas) || !wqlSchemas.length > 0) {
+        if (is.not.array(stitches) || is.not.array(wqlSchemas)) {
             return []
         }
 
