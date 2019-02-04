@@ -58,7 +58,7 @@ async function main() {
                 resolver: {
                     datasource: "petstore",
                     query: "pet",
-                    args: { petId: (parent, vars) => parent.emp_no % 10 }
+                    args: { petId: (parent, _) => parent.emp_no % 10 }
                 }
             },
             {
@@ -67,7 +67,7 @@ async function main() {
                 resolver: {
                     datasource: "employees",
                     query: "current_dept_emp",
-                    args: { emp_no: (parent) => parent.emp_no }
+                    args: { emp_no: (parent, _) => parent.emp_no }
                 }
             },
             {
@@ -77,8 +77,8 @@ async function main() {
                     datasource: "employees",
                     query: "salaries",
                     args: {
-                        emp_no: (parent, vars) => vars.emp_id,
-                        to_date: (parent) => parent.to_date
+                        emp_no: (_, vars) => vars.emp_id,
+                        to_date: (parent, _) => parent.to_date
                     }
                 }
             },
