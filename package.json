@@ -2,6 +2,9 @@
   "name": "worldql-core",
   "version": "0.0.1",
   "main": "src/worldql-core.js",
+  "files": [
+    "/src"
+  ],
   "repository": "https://github.com/thejibz/worldql-core.git",
   "author": "Jean-Baptiste Roux",
   "bugs": {
@@ -22,6 +25,8 @@
     "node-fetch": "^2.3.0",
     "oasgraph-jibz": "0.12.0",
     "proxy-agent": "^3.0.3",
+    "soap": "^0.26.0",
+    "soap-graphql": "^0.1.0",
     "swagger-parser": "^5.0.0",
     "zealit": "^2.4.1"
   },

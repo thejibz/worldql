@@ -4,7 +4,7 @@ const elasticsearch = require("elasticsearch")
 const { composeWithElastic, fetchElasticMapping } = require("graphql-compose-elasticsearch")
 
 
-module.exports.buildGqlSchemaFromEs = (sourceName, sourceConf) => {
+module.exports.buildGqlSchemaFromEs = (sourceConf) => {
     const elasticClient = new elasticsearch.Client(sourceConf.esClientConf)
 
     return fetchElasticMapping({
@@ -34,6 +34,6 @@ module.exports.buildGqlSchemaFromEs = (sourceName, sourceConf) => {
             })
         })
 
-        return { [sourceName]: gqlSchema }
+        return gqlSchema
     })
 }

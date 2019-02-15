@@ -18,82 +18,11 @@ query {
 async function main() {
     const wqlConf = {
         datasources: {
-            petstore: {
-                url: "http://localhost:8080/api/swagger.json",
-                type: "OPEN_API",
-                oasGraphConf: {
-                    viewer: false,
-                    preferredScheme: "http",
-                }
-            },
-            books: {
-                url: "http://localhost:8090",
-                type: "GRAPHQL",
-            },
-            company: {
-                type: 'ELASTICSEARCH',
-                url: 'http://localhost:9200',
-                graphqlTypeName: "company",
-                elasticIndex: 'companydatabase',
-                elasticType: 'employees',
-                pluralFields: ['skills', 'languages'],
-                apiVersion: '5.6',
-            },
-            employees: {
-                type: "MYSQL",
-                mysqlConfig: {
-                    //debug: ['ComQueryPacket'],
-                    host: "localhost",
-                    port: "3306",
-                    user: "root",
-                    password: "secret",
-                    database: "employees",
-                }
-            },
-        },
-        stitches: [
-            {
-                parentType: "employeesT",
-                fieldName: "petOfEmployee",
-                resolver: {
-                    datasource: "petstore",
-                    query: "pet",
-                    args: { petId: (parent, _) => parent.emp_no % 10 }
-                }
-            },
-            {
-                parentType: "employeesT",
-                fieldName: "currentDept",
-                resolver: {
-                    datasource: "employees",
-                    query: "current_dept_emp",
-                    args: { emp_no: (parent, _) => parent.emp_no }
-                }
-            },
-            {
-                parentType: "current_dept_empT",
-                fieldName: "currentSalary",
-                resolver: {
-                    datasource: "employees",
-                    query: "salaries",
-                    args: {
-                        emp_no: (_, vars) => vars.emp_id,
-                        to_date: (parent, _) => parent.to_date
-                    }
-                }
-            },
-            {
-                parentType: "salariesT",
-                fieldName: "esSalary",
-                resolver: {
-                    datasource: "company",
-                    query: "company",
-                    args: {
-                        q: (parent) => `Employee.Age=${parent.salary % 50}`,
-                    }
-                }
+            gps: {
+                wsdlUrl: "http://localhost:8086/wsdl?wsdl",
+                type: "SOAP"
             }
-        ]
+        }
     }
 
 

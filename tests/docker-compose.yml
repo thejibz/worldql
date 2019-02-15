@@ -2,7 +2,7 @@ version: "3"
 services:
 
   elasticsearch:
-    image: elasticsearch:5.6
+    image: elasticsearch:5.6-alpine
     volumes:
       - ./data/elasticsearch/Employees50K.json:/tmp/data/Employees50K.json
       - ./setup/wait-for-it.sh:/tmp/setup/wait-for-it.sh
@@ -45,6 +45,10 @@ services:
     image: thejibz/graphql-server-example
     ports:
       - 8090:4000
+  soap:
+    image: thejibz/node-soap-example
+    ports:
+      - 8086:8086
 
 volumes:
   mysql:

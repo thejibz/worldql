@@ -144,42 +144,42 @@ describe("Test the worldql", () => {
                                                     "hits": [
                                                         {
                                                             "_source": {
-                                                                "Salary": 94000
+                                                                "Salary": 90000,
                                                             }
                                                         },
                                                         {
                                                             "_source": {
-                                                                "Salary": 94000
+                                                                "Salary": 88000,
                                                             }
                                                         },
                                                         {
                                                             "_source": {
-                                                                "Salary": 84000
+                                                                "Salary": 88000
                                                             }
                                                         },
                                                         {
                                                             "_source": {
-                                                                "Salary": 85000
+                                                                "Salary": 86000
                                                             }
                                                         },
                                                         {
                                                             "_source": {
-                                                                "Salary": 98000
+                                                                "Salary": 75000
                                                             }
                                                         },
                                                         {
                                                             "_source": {
-                                                                "Salary": 87000
+                                                                "Salary": 77000
                                                             }
                                                         },
                                                         {
                                                             "_source": {
-                                                                "Salary": 96000
+                                                                "Salary": 74000
                                                             }
                                                         },
                                                         {
                                                             "_source": {
-                                                                "Salary": 53000
+                                                                "Salary": 76000
                                                             }
                                                         },
                                                         {
@@ -189,7 +189,7 @@ describe("Test the worldql", () => {
                                                         },
                                                         {
                                                             "_source": {
-                                                                "Salary": 52000
+                                                                "Salary": 52000,
                                                             }
                                                         }
                                                     ]

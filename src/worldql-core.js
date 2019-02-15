@@ -11,6 +11,7 @@ const oasBuilder = require("./builders/openapi.builder")
 const mysqlBuilder = require("./builders/mysql.builder")
 const esBuilder = require("./builders/elasticsearch.builder")
 const gqlBuilder = require("./builders/graphql.builder")
+const soapBuilder = require("./builders/soap.builder")
 
 
 const WorldQL = (function () {
@@ -18,7 +19,8 @@ const WorldQL = (function () {
         OPEN_API: "OPEN_API",
         GRAPHQL: "GRAPHQL",
         ELASTICSEARCH: "ELASTICSEARCH",
-        MYSQL: "MYSQL"
+        MYSQL: "MYSQL",
+        SOAP: "SOAP"
     }, { freeze: true })
 
     function _createGqlSchemasFromDs(datasources) {
@@ -28,16 +30,19 @@ const WorldQL = (function () {
 
             switch (dsConf.type) {
                 case SOURCE_TYPE.OPEN_API:
-                    return oasBuilder.buildGqlSchemaFromOas(dsName, dsConf)
+                    return oasBuilder.buildGqlSchemaFromOas(dsConf).then((schema) => { return { [dsName]: schema } })
 
                 case SOURCE_TYPE.ELASTICSEARCH:
-                    return esBuilder.buildGqlSchemaFromEs(dsName, dsConf)
+                    return esBuilder.buildGqlSchemaFromEs(dsConf).then((schema) => { return { [dsName]: schema } })
 
                 case SOURCE_TYPE.GRAPHQL:
-                    return gqlBuilder.buildGqlSchemaFromGql(dsName, dsConf)
+                    return gqlBuilder.buildGqlSchemaFromGql(dsConf).then((schema) => { return { [dsName]: schema } })
 
                 case SOURCE_TYPE.MYSQL:
-                    return mysqlBuilder.buildGqlSchemaFromMysql(dsName, dsConf)
+                    return mysqlBuilder.buildGqlSchemaFromMysql(dsConf).then((schema) => { return { [dsName]: schema } })
+
+                case SOURCE_TYPE.SOAP:
+                    return soapBuilder.buildGqlSchemaFromSoap(dsConf).then((schema) => { return { [dsName]: schema } })
 
                 default:
                     throw ("Datasource type not defined or invalid for " + dsName)
