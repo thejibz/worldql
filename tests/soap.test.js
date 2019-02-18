@@ -8,7 +8,7 @@ describe("Test the worldql for graphql", () => {
         const wqlConf = {
             datasources: {
                 splitter: {
-                    wsdlUrl: "http://localhost:8086/wsdl?wsdl",
+                    wsdlUrlOrOptions: "http://localhost:8086/wsdl?wsdl",
                     type: "SOAP"
                 }
             }
