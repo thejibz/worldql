@@ -11,7 +11,6 @@ const oasBuilder = require("./builders/openapi.builder")
 const mysqlBuilder = require("./builders/mysql.builder")
 const esBuilder = require("./builders/elasticsearch.builder")
 const gqlBuilder = require("./builders/graphql.builder")
-const soapBuilder = require("./builders/soap.builder")
 
 
 const WorldQL = (function () {
@@ -40,9 +39,6 @@ const WorldQL = (function () {
 
                 case SOURCE_TYPE.MYSQL:
                     return mysqlBuilder.buildGqlSchemaFromMysql(dsConf).then((schema) => { return { [dsName]: schema } })
-
-                case SOURCE_TYPE.SOAP:
-                    return soapBuilder.buildGqlSchemaFromSoap(dsConf).then((schema) => { return { [dsName]: schema } })
 
                 default:
                     throw ("Datasource type not defined or invalid for " + dsName)

@@ -45,10 +45,7 @@ services:
     image: thejibz/graphql-server-example
     ports:
       - 8090:4000
-  soap:
-    image: thejibz/node-soap-example
-    ports:
-      - 8086:8086
+  
 
 volumes:
   mysql:
