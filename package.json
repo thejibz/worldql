@@ -23,7 +23,7 @@
     "is_js": "^0.9.0",
     "mysql": "^2.16.0",
     "node-fetch": "^2.3.0",
-    "oasgraph-jibz": "0.12.0",
+    "oasgraph-jibz": "0.14.1",
     "proxy-agent": "^3.0.3",
     "soap": "^0.26.0",
     "soap-graphql": "^0.1.0",

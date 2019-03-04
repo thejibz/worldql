@@ -16,26 +16,31 @@ query {
 */
 
 async function main() {
-    const wqlConf = {
-        datasources: {
-            gps: {
-                wsdlUrl: "http://localhost:8086/wsdl?wsdl",
-                type: "SOAP"
-            }
+  const wqlConf = {
+    datasources: {
+      petstore: {
+        url: "http://localhost:8080/api/swagger.json",
+        type: "OPEN_API",
+        oasGraphConf: {
+          viewer: false,
+          preferredScheme: "http",
         }
-    }
+      },
+    },
+    stitches: []
+  }
 
 
-    const server = new ApolloServer({
-        schema: await worldql.buildGqlSchema(wqlConf),
-        playground: true,
-        debug: true,
-        tracing: true
-    })
+  const server = new ApolloServer({
+    schema: await worldql.buildGqlSchema(wqlConf),
+    playground: true,
+    debug: true,
+    tracing: true
+  })
 
-    server.listen().then(({ url }) => {
-        console.log(`🚀 Server ready at ${url}`)
-    })
+  server.listen().then(({ url }) => {
+    console.log(`🚀 Server ready at ${url}`)
+  })
 }
 
 main()
