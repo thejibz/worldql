@@ -12,7 +12,7 @@ describe("Test the worldql", () => {
                     type: "OPEN_API",
                     oasGraphConf: {
                         viewer: false,
-                        preferredScheme: "http",
+                        baseUrl: "http://localhost:8080/api"
                     }
                 },
                 books: {
