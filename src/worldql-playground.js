@@ -66,7 +66,7 @@ async function main() {
         fieldName: "currentDept",
         resolver: {
           datasource: "employees",
-          query: "QueryEmployees",
+          query: "employees",
           args: { emp_no: (parent) => parent.emp_no }
         }
       },
@@ -75,8 +75,7 @@ async function main() {
         fieldName: "currentSalary",
         resolver: {
           datasource: "employees",
-          operation: "query",
-          fieldName: "QueryEmployees",
+          query: "employees",
           args: {
             emp_no: (parent, vars) => parent.emp_no,
             to_date: (parent, vars) => parent.to_date
@@ -88,8 +87,7 @@ async function main() {
         fieldName: "esSalary",
         resolver: {
           datasource: "company",
-          operation: "query",
-          fieldName: "company",
+          query: "company",
           args: {
             q: (parent, vars) => `Employee.Age=${parent.salary % 50}`,
           }
