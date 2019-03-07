@@ -8,10 +8,33 @@
             "type": "node",
             "request": "launch",
             "name": "playground",
-            "program": "${workspaceFolder}/src/worldql-playground.awl.js",
+            "args": [
+                "${workspaceFolder}/src/worldql-playground.js"
+            ],
             "env": {
-                "DEBUG": "worldql-core,http"
+                "DEBUG": "worldql-core, http"
             }
         },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Jest Current File",
+            "program": "${workspaceFolder}/node_modules/.bin/jest",
+            "args": [
+                "--forceExit",
+                "--detectOpenHandles",
+                "${relativeFile}"
+            ],
+            //"console": "integratedTerminal",
+            //"internalConsoleOptions": "neverOpen",
+            "disableOptimisticBPs": true,
+            "env": {
+                "DEBUG_DEPTH": "15",
+                "DEBUG": "worldql-core, http"
+            },
+            "windows": {
+                "program": "${workspaceFolder}/node_modules/jest/bin/jest",
+            }
+        }
     ]
 }
