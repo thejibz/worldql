@@ -51,51 +51,50 @@ async function main() {
         }
       },
     },
-    stitches: [
-      // {
-      //     parentType: "employeesT",
-      //     fieldName: "petOfEmployee",
-      //     resolver: {
-      //         datasource: "petstore",
-      //         query: "pet",
-      //         args: { petId: (parent) => parent.emp_no % 10 }
-      //     }
-      // },
-      {
-        parentType: "employeesT",
-        fieldName: "currentDept",
-        resolver: {
-          datasource: "employees",
-          query: "employees",
-          args: { emp_no: (parent) => parent.emp_no }
-        }
-      },
-      {
-        parentType: "current_dept_empT",
-        fieldName: "currentSalary",
-        resolver: {
-          datasource: "employees",
-          query: "employees",
-          args: {
-            emp_no: (parent, vars) => parent.emp_no,
-            to_date: (parent, vars) => parent.to_date
-          }
-        }
-      },
-      {
-        parentType: "salariesT",
-        fieldName: "esSalary",
-        resolver: {
-          datasource: "company",
-          query: "company",
-          args: {
-            q: (parent, vars) => `Employee.Age=${parent.salary % 50}`,
-          }
-        }
-      }
-    ]
+    // stitches: [
+    //   {
+    //     parentType: "employeesT",
+    //     fieldName: "petOfEmployee",
+    //     resolver: {
+    //       datasource: "petstore",
+    //       query: "pet",
+    //       args: { petId: (parent) => parent.emp_no % 10 }
+    //     }
+    //   },
+    //   // {
+    //   //   parentType: "employeesT",
+    //   //   fieldName: "currentDept",
+    //   //   resolver: {
+    //   //     datasource: "employees",
+    //   //     query: "current_dept_emp",
+    //   //     args: { emp_no: (parent) => parent.emp_no }
+    //   //   }
+    //   // },
+    //   {
+    //     parentType: "current_dept_empT",
+    //     fieldName: "currentSalary",
+    //     resolver: {
+    //       datasource: "employees",
+    //       query: "salaries",
+    //       args: {
+    //         emp_no: (parent, vars) => vars.emp_id,
+    //         to_date: (parent, vars) => parent.to_date
+    //       }
+    //     }
+    //   },
+    //   {
+    //     parentType: "salariesT",
+    //     fieldName: "esSalary",
+    //     resolver: {
+    //       datasource: "company",
+    //       query: "company",
+    //       args: {
+    //         q: (parent, vars) => `Employee.Age=${parent.salary % 50}`,
+    //       }
+    //     }
+    //   }
+    // ]
   }
-
 
   const server = new ApolloServer({
     schema: await worldql.buildGqlSchema(wqlConf),

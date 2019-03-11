@@ -22,15 +22,13 @@ describe("Test worldql with MySQL datasource", () => {
 
         const gqlQuery = `
         {
-            employees {
-                employees(emp_no: 10005) {
-                    emp_no
-                    first_name
-                    last_name
-                    gender
-                    birth_date
-                    hire_date
-                }
+            employees(emp_no: 10005) {
+                emp_no
+                first_name
+                last_name
+                gender
+                birth_date
+                hire_date
             }
         }`
 
@@ -43,16 +41,14 @@ describe("Test worldql with MySQL datasource", () => {
             }).then(gqlResponse => {
                 expect(gqlResponse).toMatchObject({
                     data: {
-                        employees: {
-                            employees: [{
-                                emp_no: 10005,
-                                first_name: "Kyoichi",
-                                last_name: "Maliniak",
-                                gender: "M",
-                                birth_date: "1955-01-20T23:00:00.000Z",
-                                hire_date: "1989-09-11T22:00:00.000Z"
-                            }]
-                        }
+                        employees: [{
+                            emp_no: 10005,
+                            first_name: "Kyoichi",
+                            last_name: "Maliniak",
+                            gender: "M",
+                            birth_date: "1955-01-20T23:00:00.000Z",
+                            hire_date: "1989-09-11T22:00:00.000Z"
+                        }]
                     }
                 })
             })
