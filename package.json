@@ -1,6 +1,6 @@
 {
   "name": "worldql-core",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "main": "src/worldql-core.js",
   "files": [
     "/src"
@@ -18,7 +18,7 @@
     "graphql": "^14.0.2",
     "graphql-compose": ">=5.3.4",
     "graphql-compose-elasticsearch": "2.2.2",
-    "graphql-compose-mysql": "0.0.4",
+    "graphql-compose-mysql": "0.0.5",
     "graphql-tools": "^4.0.2",
     "is_js": "^0.9.0",
     "mysql": "^2.16.0",

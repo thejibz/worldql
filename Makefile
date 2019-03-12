@@ -1,4 +1,4 @@
-.PHONY : awl install test push kazan github graphiql playground
+.PHONY : awl install test push kazan github graphiql playground publish
 
 install:
 	rm -f yarn.lock || true
@@ -16,7 +16,7 @@ awl:
 test:
 	yarn test
 
-push:
+gitlab:
 	$(MAKE) test
 	git add .
 	git status
@@ -29,6 +29,11 @@ github:
 	git status
 	git commit -m"[sync]"|| true 
 	git push github master
+
+publish:
+	$(MAKE) gitlab
+	$(MAKE) github
+	npm publish
 
 kazan:
 	$(MAKE) test
