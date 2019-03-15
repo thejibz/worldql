@@ -17,7 +17,6 @@ test:
 	yarn test
 
 gitlab:
-	$(MAKE) test
 	git add .
 	git status
 	git commit -m"[sync]"|| true 

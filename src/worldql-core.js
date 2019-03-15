@@ -78,18 +78,43 @@ const WorldQL = (function () {
                     [stitch.fieldName](parent, args, context, info) {
                         let stitchArgs = {}
 
+                        // Define the internal function that build resolver (avoid code duplication)
+                        const __buildResolver = (stitchArgs) => {
+                            return info.mergeInfo.delegateToSchema({
+                                schema: remoteSchema,
+                                operation: "query",
+                                fieldName: remoteQuery.name,
+                                args: stitchArgs,
+                                context,
+                                info
+                            })
+                        }
+
                         if (!!stitch.resolver.args) {
+                            if (!!stitch.resolver.groupBy) {
+                                const groupValues = stitch.resolver.groupBy(parent, info.variableValues)
+                                if (is.not.array(groupValues)) {
+                                    throw (`groupBy in stitch "${stitch.fieldName}" doesn't resolve to an array."`)
+                                }
+
+                                const resolver = Promise.all(
+                                    groupValues.map(groupValue => {
+                                        return _buildStitchArgs(stitch.resolver.args, parent, info.variableValues, groupValue)
+                                    }).map(args => { 
+                                        return __buildResolver(args) 
+                                    })
+                                ).then(v => {
+                                    console.log(v)
+                                    return v
+                                })
+
+                                return resolver
+                            }
+
                             stitchArgs = _buildStitchArgs(stitch.resolver.args, parent, info.variableValues)
                         }
 
-                        const resolver = info.mergeInfo.delegateToSchema({
-                            schema: remoteSchema,
-                            operation: "query",
-                            fieldName: remoteQuery.name,
-                            args: stitchArgs,
-                            context,
-                            info
-                        })
+                        const resolver = __buildResolver(stitchArgs)
 
                         return resolver
                     }
@@ -101,7 +126,7 @@ const WorldQL = (function () {
 
     }
 
-    function _buildStitchArgs(stitchArgs, parent, vars) {
+    function _buildStitchArgs(stitchArgs, parent, vars, groupValue) {
         // Throw a ReferenceError if field used for stitching is not present in the parent object
         parent = zealit(parent, {
             catch: (err) => {
@@ -118,12 +143,13 @@ const WorldQL = (function () {
         const args =
             // { param1: (parent, vars) => { parent.fieldName1 }, param2: (parent, vars) => { vars.fieldName2 }, ...}
             Object.entries(stitchArgs)
-                // [ [ param1, (parent, vars) => { parent.fieldName1 }], (parent, vars) => { vars.fieldName2 }, ...]
+                // [ [param1, (parent, vars, value) => { parent.fieldName1 }], [param2: (parent, vars, value) => { vars.fieldName2 }],
+                //  [param3: (parent, vars, value) => { value }], ...]
                 .map(entry => {
-                    return { [entry[0]]: entry[1](parent, vars) }
+                    return { [entry[0]]: entry[1](parent, vars, groupValue) }
                 })
-                // [ { param1: parent.fieldName1 }, { param2: vars.fieldName2 }, ...]
-                .reduce((acc, arg) => Object.assign(acc, arg)) // { param1: parent.fieldName1, param2: vars.fieldName2, ... }
+                // [ { param1: parent.fieldName1 }, { param2: vars.fieldName2 }, { param3: value }, ...]
+                .reduce((acc, arg) => Object.assign(acc, arg)) // { param1: parent.fieldName1, param2: vars.fieldName2, param3: value, ... }
 
         return args
     }
