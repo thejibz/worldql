@@ -11,7 +11,7 @@ const oasBuilder = require("./builders/openapi.builder")
 const mysqlBuilder = require("./builders/mysql.builder")
 const esBuilder = require("./builders/elasticsearch.builder")
 const gqlBuilder = require("./builders/graphql.builder")
-
+const fileBuilder = require("./builders/file.builder")
 
 const WorldQL = (function () {
     const SOURCE_TYPE = zealit({
@@ -19,7 +19,8 @@ const WorldQL = (function () {
         GRAPHQL: "GRAPHQL",
         ELASTICSEARCH: "ELASTICSEARCH",
         MYSQL: "MYSQL",
-        SOAP: "SOAP"
+        SOAP: "SOAP",
+        FILE: "FILE"
     }, { freeze: true })
 
     function _createGqlSchemasFromDs(datasources) {
@@ -39,6 +40,9 @@ const WorldQL = (function () {
 
                 case SOURCE_TYPE.MYSQL:
                     return mysqlBuilder.buildGqlSchemaFromMysql(dsConf).then((schema) => { return { [dsName]: schema } })
+
+                case SOURCE_TYPE.FILE:
+                    return fileBuilder.buildGqlSchemaFromFile(dsConf).then((schema) => { return { [dsName]: schema } })
 
                 default:
                     throw ("Datasource type not defined or invalid for " + dsName)
@@ -100,8 +104,8 @@ const WorldQL = (function () {
                                 const resolver = Promise.all(
                                     groupValues.map(groupValue => {
                                         return _buildStitchArgs(stitch.resolver.args, parent, info.variableValues, groupValue)
-                                    }).map(args => { 
-                                        return __buildResolver(args) 
+                                    }).map(args => {
+                                        return __buildResolver(args)
                                     })
                                 ).then(v => {
                                     console.log(v)
