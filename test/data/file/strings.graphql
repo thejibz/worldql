@@ -1,0 +1,9 @@
+type Query {
+  listOfStrings: ListOfStrings
+  lengthOfString (aString:String!): Int!
+}
+
+type ListOfStrings {
+  list: [String!]!
+  staticString: String
+}

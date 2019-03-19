@@ -1,0 +1,15 @@
+type Query {
+  listOfCharacters: ListOfCharacters
+  bmi (weight:Int!, height: Int!): Float!
+}
+
+type ListOfCharacters {
+  list: [Character]
+}
+
+type Character {
+  name: String,
+  age: Int,
+  weight: Int,
+  height: Int
+}

@@ -8,22 +8,23 @@ describe("Test worldql with FILE datasource", () => {
         const wqlConf = {
             datasources: {
                 basic: {
-                    url: `${__dirname}/data/file/schema.graphql`,
+                    url: `${__dirname}/data/file/strings.graphql`,
                     type: "FILE",
                     resolvers: {
                         Query: {
-                            listOfStrings: () => { return ["a", "ab", "abc", "abcd"] },
+                            listOfStrings: () => { return { list: ["a", "ab", "abc", "abcd"] } },
                             lengthOfString: (obj, args, context, info) => { return args.aString.length }
                         }
                     }
                 },
             },
-            stitches: []
         }
 
         const gqlQuery = `
         {
-            listOfStrings            
+            listOfStrings {
+                list
+            }         
         }`
 
         return worldql.buildGqlSchema(wqlConf).then(gqlSchema => {
@@ -33,7 +34,16 @@ describe("Test worldql with FILE datasource", () => {
                 // variableValues: gqlVariables
             }).then(gqlResponse => {
                 expect(gqlResponse).toMatchObject({
-                    data: { listOfStrings: ['a', 'ab', 'abc', 'abcd'] }
+                    data: {
+                        "listOfStrings": {
+                            "list": [
+                                "a",
+                                "ab",
+                                "abc",
+                                "abcd"
+                            ]
+                        }
+                    }
                 })
             })
         })
@@ -43,17 +53,16 @@ describe("Test worldql with FILE datasource", () => {
         const wqlConf = {
             datasources: {
                 basic: {
-                    url: `${__dirname}/data/file/schema.graphql`,
+                    url: `${__dirname}/data/file/strings.graphql`,
                     type: "FILE",
                     resolvers: {
                         Query: {
-                            listOfStrings: () => { return ["a", "ab", "abc", "abcd"] },
+                            listOfStrings: () => { return { list: ["a", "ab", "abc", "abcd"] } },
                             lengthOfString: (obj, args, context, info) => { return args.aString.length }
                         }
                     }
                 },
-            },
-            stitches: []
+            }
         }
 
         const gqlQuery = `

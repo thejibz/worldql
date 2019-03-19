@@ -74,15 +74,16 @@ const WorldQL = (function () {
 
             const linkTypeDef = `
                     extend type ${stitch.parentType} {
-                        ${stitch.fieldName}: ${remoteQuery.type.toString()}
+                        ${stitch.fieldName}: ${!stitch.resolver.groupBy ? remoteQuery.type.toString() : `[${remoteQuery.type.toString()}]`}
                     }`
 
             const resolver = {
                 [stitch.parentType]: {
                     [stitch.fieldName](parent, args, context, info) {
                         let stitchArgs = {}
+                        let resolver = {}
 
-                        // Define the internal function that build resolver (avoid code duplication)
+                        // Define the internal function that will build resolver (avoid code duplication)
                         const __buildResolver = (stitchArgs) => {
                             return info.mergeInfo.delegateToSchema({
                                 schema: remoteSchema,
@@ -101,25 +102,19 @@ const WorldQL = (function () {
                                     throw (`groupBy in stitch "${stitch.fieldName}" doesn't resolve to an array."`)
                                 }
 
-                                const resolver = Promise.all(
+                                resolver = Promise.all(
                                     groupValues.map(groupValue => {
                                         return _buildStitchArgs(stitch.resolver.args, parent, info.variableValues, groupValue)
                                     }).map(args => {
                                         return __buildResolver(args)
                                     })
-                                ).then(v => {
-                                    console.log(v)
-                                    return v
-                                })
-
-                                return resolver
+                                )
+                            } else {
+                                stitchArgs = _buildStitchArgs(stitch.resolver.args, parent, info.variableValues)
+                                resolver = __buildResolver(stitchArgs)
                             }
-
-                            stitchArgs = _buildStitchArgs(stitch.resolver.args, parent, info.variableValues)
                         }
-
-                        const resolver = __buildResolver(stitchArgs)
-
+                        
                         return resolver
                     }
                 }

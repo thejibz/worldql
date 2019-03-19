@@ -4,213 +4,233 @@ const worldql = require("../src/worldql-core")
 describe("GroupBy in stitching", () => {
     jest.setTimeout(30000)
 
-    test("groupby on array of scalars", () => {
+    test("groupby on a list of string", () => {
         const wqlConf = {
             datasources: {
-                petstore: {
-                    url: "http://localhost:8080/api/swagger.json",
-                    type: "OPEN_API",
-                    oasGraphConf: {
-                        viewer: false,
-                        baseUrl: "http://localhost:8080/api"
-                    }
-                },
-                books: {
-                    url: "http://localhost:8090",
-                    type: "GRAPHQL",
-                },
-                company: {
-                    type: 'ELASTICSEARCH',
-                    url: 'http://localhost:9200',
-                    graphqlTypeName: "company",
-                    elasticIndex: 'companydatabase',
-                    elasticType: 'employees',
-                    pluralFields: ['skills', 'languages'],
-                    apiVersion: '5.6',
-                },
-                employees: {
-                    type: "MYSQL",
-                    mysqlConfig: {
-                        //debug: ['ComQueryPacket'],
-                        host: "localhost",
-                        port: "3306",
-                        user: "root",
-                        password: "secret",
-                        database: "employees",
+                basic: {
+                    url: `${__dirname}/data/file/strings.graphql`,
+                    type: "FILE",
+                    resolvers: {
+                        Query: {
+                            listOfStrings: () => { return { list: ["a", "ab", "abc", "abcd"] } },
+                            lengthOfString: (obj, args, context, info) => { return args.aString.length }
+                        }
                     }
                 },
             },
             stitches: [
                 {
-                    parentType: "employeesT",
-                    fieldName: "petOfEmployee",
+                    parentType: "ListOfStrings",
+                    fieldName: "length",
                     resolver: {
-                        datasource: "petstore",
-                        query: "pet",
-                        args: { petId: (parent) => parent.emp_no % 10 }
-                    }
-                },
-                {
-                    parentType: "employeesT",
-                    fieldName: "currentDept",
-                    resolver: {
-                        datasource: "employees",
-                        query: "current_dept_emp",
-                        args: { emp_no: (parent) => parent.emp_no }
-                    }
-                },
-                {
-                    parentType: "current_dept_empT",
-                    fieldName: "currentSalary",
-                    resolver: {
-                        datasource: "employees",
-                        query: "salaries",
+                        datasource: "basic",
+                        query: "lengthOfString",
+                        groupBy: (parent, vars) => parent.list,
                         args: {
-                            emp_no: (parent, vars) => vars.emp_id,
-                            to_date: (parent, vars) => parent.to_date
+                            aString: (parent, vars, groupValue) => groupValue
                         }
                     }
                 },
-                {
-                    parentType: "salariesT",
-                    fieldName: "esSalary",
-                    resolver: {
-                        datasource: "company",
-                        query: "company",
-                        args: {
-                            q: (parent, vars) => `Employee.Age=${parent.salary % 50}`,
-                        }
-                    }
-                }
             ]
         }
 
         const gqlQuery = `
-        query($emp_id: Int!){
-            employees(emp_no: $emp_id) {
-                gender
-                first_name
-                emp_no
-                currentDept {
-                    dept_no
-                    emp_no
-                    to_date
-                    currentSalary {
-                    salary
-                    esSalary {
-                        hits {
-                        _source {
-                            Salary
-                        }
-                        }
-                    }
-                    }
-                }
-                petOfEmployee {
-                    name
-                    id
-                }
+        {
+            listOfStrings {
+              list
+              length
             }
         }`
-
-        const gqlVariables = {
-            "emp_id": 10005,
-            "pet_id": 2
-        }
 
         return worldql.buildGqlSchema(wqlConf).then(gqlSchema => {
             return GraphQL.graphql({
                 schema: gqlSchema,
                 source: gqlQuery,
-                variableValues: gqlVariables,
+                //variableValues: gqlVariables,
                 contextValue: {}
             }).then(gqlResponse => {
                 expect(gqlResponse).toMatchObject({
                     "data": {
-                        "employees": [
-                            {
-                                "gender": "M",
-                                "first_name": "Kyoichi",
-                                "emp_no": 10005,
-                                "currentDept": [
-                                    {
-                                        "dept_no": "d003",
-                                        "emp_no": 10005,
-                                        "to_date": "9998-12-31T23:00:00.000Z",
-                                        "currentSalary": [
-                                            {
-                                                "salary": 94692,
-                                                "esSalary": {
-                                                    "hits": [
-                                                        {
-                                                            "_source": {
-                                                                "Salary": 90000,
-                                                            }
-                                                        },
-                                                        {
-                                                            "_source": {
-                                                                "Salary": 88000,
-                                                            }
-                                                        },
-                                                        {
-                                                            "_source": {
-                                                                "Salary": 88000
-                                                            }
-                                                        },
-                                                        {
-                                                            "_source": {
-                                                                "Salary": 86000
-                                                            }
-                                                        },
-                                                        {
-                                                            "_source": {
-                                                                "Salary": 75000
-                                                            }
-                                                        },
-                                                        {
-                                                            "_source": {
-                                                                "Salary": 77000
-                                                            }
-                                                        },
-                                                        {
-                                                            "_source": {
-                                                                "Salary": 74000
-                                                            }
-                                                        },
-                                                        {
-                                                            "_source": {
-                                                                "Salary": 76000
-                                                            }
-                                                        },
-                                                        {
-                                                            "_source": {
-                                                                "Salary": 59000
-                                                            }
-                                                        },
-                                                        {
-                                                            "_source": {
-                                                                "Salary": 52000,
-                                                            }
-                                                        }
-                                                    ]
-                                                }
-                                            }
-                                        ]
-                                    }
-                                ],
-                                "petOfEmployee": {
-                                    "name": "Dog 2",
-                                    "id": 5
-                                }
-                            }
-                        ]
+                        "listOfStrings": {
+                            "list": [
+                                "a",
+                                "ab",
+                                "abc",
+                                "abcd"
+                            ],
+                            "length": [
+                                1,
+                                2,
+                                3,
+                                4
+                            ]
+                        }
                     }
                 })
             })
         })
     })
 
-    test("groupby on array of objects", () => { return false})
+    test("groupby on array of objects", () => {
+        const wqlConf = {
+            datasources: {
+                character: {
+                    url: `${__dirname}/data/file/character.graphql`,
+                    type: "FILE",
+                    resolvers: {
+                        Query: {
+                            listOfCharacters: () => {
+                                return {
+                                    list: [{
+                                        name: "Robert",
+                                        age: 32,
+                                        weight: 100,
+                                        height: 180
+                                    }, {
+                                        name: "Katty",
+                                        age: 22,
+                                        weight: 60,
+                                        height: 170
+                                    }, {
+                                        name: "Alfred",
+                                        age: 55,
+                                        weight: 85,
+                                        height: 190
+                                    }]
+                                }
+                            },
+                            bmi: (obj, args, context, info) => { return args.height / args.weight }
+                        }
+                    }
+                },
+            },
+            stitches: [
+                {
+                    parentType: "ListOfCharacters",
+                    fieldName: "bmi",
+                    resolver: {
+                        datasource: "character",
+                        query: "bmi",
+                        groupBy: (parent, vars) => parent.list,
+                        args: {
+                            weight: (parent, vars, groupValue) => groupValue.weight,
+                            height: (parent, vars, groupValue) => groupValue.height
+                        }
+                    }
+                },
+            ]
+        }
 
-    test("error when groupBy field doesn't resolve to an array", () => { return false})
+        const gqlQuery = `
+        {
+            listOfCharacters {
+                list {
+                    name
+                    weight
+                    height
+                }
+
+                bmi
+            }
+        }`
+
+        return worldql.buildGqlSchema(wqlConf).then(gqlSchema => {
+            return GraphQL.graphql({
+                schema: gqlSchema,
+                source: gqlQuery,
+                //variableValues: gqlVariables,
+                contextValue: {}
+            }).then(gqlResponse => {
+                expect(gqlResponse).toMatchObject({
+                    "data": {
+                        "listOfCharacters": {
+                            "list": [
+                                {
+                                    "name": "Robert",
+                                    "height": 180,
+                                    "weight": 100
+                                },
+                                {
+                                    "name": "Katty",
+                                    "height": 170,
+                                    "weight": 60
+                                },
+                                {
+                                    "name": "Alfred",
+                                    "height": 190,
+                                    "weight": 85
+                                }
+                            ],
+                            "bmi": [
+                                1.8,
+                                2.8333333333333335,
+                                2.235294117647059
+                            ]
+                        }
+                    }
+                })
+            })
+        })
+    })
+
+    test("error when groupBy field doesn't resolve to an array", () => {
+        const wqlConf = {
+            datasources: {
+                basic: {
+                    url: `${__dirname}/data/file/strings.graphql`,
+                    type: "FILE",
+                    resolvers: {
+                        Query: {
+                            listOfStrings: () => {
+                                return {
+                                    list: ["a", "ab", "abc", "abcd"],
+                                    staticField: "Toto"
+                                }
+                            },
+                            lengthOfString: (obj, args, context, info) => { return args.aString.length }
+                        }
+                    }
+                },
+            },
+            stitches: [
+                {
+                    parentType: "ListOfStrings",
+                    fieldName: "length",
+                    resolver: {
+                        datasource: "basic",
+                        query: "lengthOfString",
+                        groupBy: (parent, vars) => parent.staticField,
+                        args: {
+                            aString: (parent, vars, groupValue) => groupValue
+                        }
+                    }
+                },
+            ]
+        }
+
+        const gqlQuery = `
+    {
+        listOfStrings {
+          list
+          length
+        }
+    }`
+
+        return worldql.buildGqlSchema(wqlConf).then(gqlSchema => {
+            return GraphQL.graphql({
+                schema: gqlSchema,
+                source: gqlQuery,
+                //variableValues: gqlVariables,
+                contextValue: {}
+            }).then(gqlResponse => {
+                console.log(gqlResponse)
+                expect(gqlResponse).toMatchObject({
+                    errors:
+                        [{
+                            message: `groupBy in stitch "length" doesn't resolve to an array."`
+                        }],
+                })
+            })
+        })
+    })
 })

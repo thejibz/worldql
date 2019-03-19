@@ -18,50 +18,47 @@ query {
 async function main() {
   const wqlConf = {
     datasources: {
-      petstore: {
-        url: "http://localhost:8080/api/swagger.json",
-        type: "OPEN_API",
-        oasGraphConf: {
-          viewer: false,
-          baseUrl: "http://localhost:8080/api"
-        }
-      },
-      books: {
-        url: "http://localhost:8090",
-        type: "GRAPHQL",
-      },
-      company: {
-        type: 'ELASTICSEARCH',
-        url: 'http://localhost:9200',
-        graphqlTypeName: "company",
-        elasticIndex: 'companydatabase',
-        elasticType: 'employees',
-        pluralFields: ['skills', 'languages'],
-        apiVersion: '5.6',
-      },
-      employees: {
-        type: "MYSQL",
-        mysqlConfig: {
-          //debug: ['ComQueryPacket'],
-          host: "localhost",
-          port: "3306",
-          user: "root",
-          password: "secret",
-          database: "employees",
+      character: {
+        url: `${__dirname}/../test/data/file/character.graphql`,
+        type: "FILE",
+        resolvers: {
+          Query: {
+            listOfCharacters: () => {
+              return {
+                list: [{
+                  name: "Robert",
+                  age: 32,
+                  weight: 100,
+                  height: 180
+                }, {
+                  name: "Katty",
+                  age: 22,
+                  weight: 60,
+                  height: 170
+                }, {
+                  name: "Alfred",
+                  age: 55,
+                  weight: 85,
+                  height: 190
+                }]
+              }
+            },
+            bmi: (obj, args, context, info) => { return args.height / args.weight }
+          }
         }
       },
     },
     stitches: [
       {
-        parentType: "departmentsT",
-        fieldName: "managerOfDept",
+        parentType: "ListOfCharacters",
+        fieldName: "bmi",
         resolver: {
-          datasource: "employees",
-          query: "dept_manager",
-          groupBy: (parent, vars) => parent.departments.map(d => d.dept_no),
+          datasource: "character",
+          query: "bmi",
+          groupBy: (parent, vars) => parent.list,
           args: {
-            dept_no: (parent, vars, groupValue) => groupValue,
-            _limit: () => 10
+            weight: (parent, vars, groupValue) => groupValue.weight,
+            height: (parent, vars, groupValue) => groupValue.height
           }
         }
       },
