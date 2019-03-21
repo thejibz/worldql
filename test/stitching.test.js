@@ -210,7 +210,75 @@ describe("Test the worldql", () => {
         })
     })
 
-    test("stitch with empty args", () => { return false })
+    test("stitch with no args", () => {
+        const wqlConf = {
+            datasources: {
+                petstore: {
+                    url: "http://localhost:8080/api/swagger.json",
+                    type: "OPEN_API",
+                    oasGraphConf: {
+                        viewer: false,
+                        baseUrl: "http://localhost:8085",
+                    }
+                },
+                basic: {
+                    url: `${__dirname}/../test/data/file/strings.graphql`,
+                    type: "FILE",
+                    resolvers: {
+                        Query: {
+                            listOfStrings: () => { return { list: ["a", "ab", "abc", "abcd"] } },
+                            lengthOfString: (obj, args, context, info) => { return args.aString.length }
+                        }
+                    }
+                },
+            },
+            stitches: [
+                {
+                    parentType: "Pet",
+                    fieldName: "listStrings",
+                    resolver: {
+                        datasource: "basic",
+                        query: "listOfStrings",
+                    }
+                },
+            ]
+        }
+
+        const gqlQuery = `
+        {
+            pet(petId: 1) {
+                name
+                listStrings {
+                    list
+                }
+            }
+        }`
+
+        return worldql.buildGqlSchema(wqlConf).then(gqlSchema => {
+            return GraphQL.graphql({
+                schema: gqlSchema,
+                source: gqlQuery,
+                // variableValues: gqlVariables
+                contextValue: {}
+            }).then(gqlResponse => {
+                expect(gqlResponse).toMatchObject({
+                    "data": {
+                        "pet": {
+                            "name": null,
+                            "listStrings": {
+                                "list": [
+                                    "a",
+                                    "ab",
+                                    "abc",
+                                    "abcd"
+                                ]
+                            }
+                        }
+                    }
+                })
+            })
+        })
+    })
 
     test("error when parent object doesn't have a required field for stitching", () => {
         const wqlConf = {
@@ -220,7 +288,7 @@ describe("Test the worldql", () => {
                     type: "OPEN_API",
                     oasGraphConf: {
                         viewer: false,
-                        preferredScheme: "http",
+                        baseUrl: "http://localhost:8085",
                     }
                 },
                 employees: {
@@ -287,7 +355,7 @@ describe("Test the worldql", () => {
                     type: "OPEN_API",
                     oasGraphConf: {
                         viewer: false,
-                        preferredScheme: "http",
+                        baseUrl: "http://localhost:8085",
                     }
                 },
                 employees: {
@@ -346,5 +414,5 @@ describe("Test the worldql", () => {
                 })
             })
         })
-    })    
+    })
 })

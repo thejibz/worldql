@@ -72,17 +72,16 @@ const WorldQL = (function () {
                 throw (`Query "${stitch.resolver.query}" not found in datasource "${stitch.resolver.datasource}"`)
             }
 
+            // Add the new field of type T to the parent
+            // In case of forEach: T becomes [T]
             const linkTypeDef = `
                     extend type ${stitch.parentType} {
-                        ${stitch.fieldName}: ${!stitch.resolver.groupBy ? remoteQuery.type.toString() : `[${remoteQuery.type.toString()}]`}
+                        ${stitch.fieldName}: ${!stitch.resolver.forEach ? remoteQuery.type.toString() : `[${remoteQuery.type.toString()}]`}
                     }`
 
             const resolver = {
                 [stitch.parentType]: {
                     [stitch.fieldName](parent, args, context, info) {
-                        let stitchArgs = {}
-                        let resolver = {}
-
                         // Define the internal function that will build resolver (avoid code duplication)
                         const __buildResolver = (stitchArgs) => {
                             return info.mergeInfo.delegateToSchema({
@@ -95,26 +94,38 @@ const WorldQL = (function () {
                             })
                         }
 
-                        if (!!stitch.resolver.args) {
-                            if (!!stitch.resolver.groupBy) {
-                                const groupValues = stitch.resolver.groupBy(parent, info.variableValues)
-                                if (is.not.array(groupValues)) {
-                                    throw (`groupBy in stitch "${stitch.fieldName}" doesn't resolve to an array."`)
-                                }
+                        let resolver = {}
 
-                                resolver = Promise.all(
-                                    groupValues.map(groupValue => {
-                                        return _buildStitchArgs(stitch.resolver.args, parent, info.variableValues, groupValue)
-                                    }).map(args => {
-                                        return __buildResolver(args)
-                                    })
-                                )
-                            } else {
-                                stitchArgs = _buildStitchArgs(stitch.resolver.args, parent, info.variableValues)
-                                resolver = __buildResolver(stitchArgs)
+                        if (!!stitch.resolver.forEach) {
+                            const values = stitch.resolver.forEach(parent, info.variableValues)
+                           
+                            if (is.not.array(values)) {
+                                throw (`forEach option for stitched field "${stitch.fieldName}" doesn't resolve to an array."`)
                             }
+
+                            resolver = Promise.all(
+                                values.map(value => {
+                                    let stitchArgs = {}
+
+                                    if (!!stitch.resolver.args && is.not.empty(stitch.resolver.args)) {
+                                        stitchArgs = _buildStitchArgs(stitch.resolver.args, parent, info.variableValues, value)
+                                    } 
+
+                                    return stitchArgs
+                                }).map(stitchArgs => {
+                                    return __buildResolver(stitchArgs)
+                                })
+                            )
+                        } else {
+                            let stitchArgs = {}
+
+                            if (!!stitch.resolver.args && is.not.empty(stitch.resolver.args)) {
+                                stitchArgs = _buildStitchArgs(stitch.resolver.args, parent, info.variableValues)
+                            }
+
+                            resolver = __buildResolver(stitchArgs)
                         }
-                        
+
                         return resolver
                     }
                 }

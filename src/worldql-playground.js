@@ -18,52 +18,35 @@ query {
 async function main() {
   const wqlConf = {
     datasources: {
-      character: {
-        url: `${__dirname}/../test/data/file/character.graphql`,
-        type: "FILE",
-        resolvers: {
-          Query: {
-            listOfCharacters: () => {
-              return {
-                list: [{
-                  name: "Robert",
-                  age: 32,
-                  weight: 100,
-                  height: 180
-                }, {
-                  name: "Katty",
-                  age: 22,
-                  weight: 60,
-                  height: 170
-                }, {
-                  name: "Alfred",
-                  age: 55,
-                  weight: 85,
-                  height: 190
-                }]
-              }
-            },
-            bmi: (obj, args, context, info) => { return args.height / args.weight }
-          }
-        }
-      },
+        basic: {
+            url: `${__dirname}/../test/data/file/strings.graphql`,
+            type: "FILE",
+            resolvers: {
+                Query: {
+                    listOfStrings: () => {
+                        return {
+                            list: ["a", "ab", "abc", "abcd"],
+                            staticString: "a Static string"
+                        }
+                    },
+                    lengthOfString: (obj, args, context, info) => { return args.aString.length }
+                }
+            }
+        },
     },
     stitches: [
-      {
-        parentType: "ListOfCharacters",
-        fieldName: "bmi",
-        resolver: {
-          datasource: "character",
-          query: "bmi",
-          groupBy: (parent, vars) => parent.list,
-          args: {
-            weight: (parent, vars, groupValue) => groupValue.weight,
-            height: (parent, vars, groupValue) => groupValue.height
-          }
-        }
-      },
+        {
+            parentType: "ListOfStrings",
+            fieldName: "list2",
+            resolver: {
+                datasource: "basic",
+                query: "listOfStrings",
+                forEach: (parent, vars) => parent.list,
+                args: {}
+            }
+        },
     ]
-  }
+}
 
   const server = new ApolloServer({
     schema: await worldql.buildGqlSchema(wqlConf),

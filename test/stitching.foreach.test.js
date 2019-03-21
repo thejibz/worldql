@@ -1,10 +1,10 @@
 const GraphQL = require("graphql")
 const worldql = require("../src/worldql-core")
 
-describe("GroupBy in stitching", () => {
+describe("forEach in stitching", () => {
     jest.setTimeout(30000)
 
-    test("groupby on a list of string", () => {
+    test("forEach on a list of string", () => {
         const wqlConf = {
             datasources: {
                 basic: {
@@ -25,9 +25,9 @@ describe("GroupBy in stitching", () => {
                     resolver: {
                         datasource: "basic",
                         query: "lengthOfString",
-                        groupBy: (parent, vars) => parent.list,
+                        forEach: (parent, vars) => parent.list,
                         args: {
-                            aString: (parent, vars, groupValue) => groupValue
+                            aString: (parent, vars, value) => value
                         }
                     }
                 },
@@ -71,7 +71,7 @@ describe("GroupBy in stitching", () => {
         })
     })
 
-    test("groupby on array of objects", () => {
+    test("forEach on array of objects", () => {
         const wqlConf = {
             datasources: {
                 character: {
@@ -111,10 +111,10 @@ describe("GroupBy in stitching", () => {
                     resolver: {
                         datasource: "character",
                         query: "bmi",
-                        groupBy: (parent, vars) => parent.list,
+                        forEach: (parent, vars) => parent.list,
                         args: {
-                            weight: (parent, vars, groupValue) => groupValue.weight,
-                            height: (parent, vars, groupValue) => groupValue.height
+                            weight: (parent, vars, value) => value.weight,
+                            height: (parent, vars, value) => value.height
                         }
                     }
                 },
@@ -173,7 +173,7 @@ describe("GroupBy in stitching", () => {
         })
     })
 
-    test("error when groupBy field doesn't resolve to an array", () => {
+    test("error when forEach field doesn't resolve to an array", () => {
         const wqlConf = {
             datasources: {
                 basic: {
@@ -199,9 +199,9 @@ describe("GroupBy in stitching", () => {
                     resolver: {
                         datasource: "basic",
                         query: "lengthOfString",
-                        groupBy: (parent, vars) => parent.staticField,
+                        forEach: (parent, vars) => parent.staticField,
                         args: {
-                            aString: (parent, vars, groupValue) => groupValue
+                            aString: (parent, vars, value) => value
                         }
                     }
                 },
@@ -223,12 +223,90 @@ describe("GroupBy in stitching", () => {
                 //variableValues: gqlVariables,
                 contextValue: {}
             }).then(gqlResponse => {
-                console.log(gqlResponse)
                 expect(gqlResponse).toMatchObject({
                     errors:
                         [{
-                            message: `groupBy in stitch "length" doesn't resolve to an array."`
+                            message: `forEach option for stitched field "length" doesn't resolve to an array."`
                         }],
+                })
+            })
+        })
+    })
+
+    test("forEach with no args", () => {
+        const wqlConf = {
+            datasources: {
+                basic: {
+                    url: `${__dirname}/../test/data/file/strings.graphql`,
+                    type: "FILE",
+                    resolvers: {
+                        Query: {
+                            listOfStrings: () => {
+                                return {
+                                    list: ["a", "ab", "abc", "abcd"],
+                                    staticString: "a Static string"
+                                }
+                            },
+                            lengthOfString: (obj, args, context, info) => { return args.aString.length }
+                        }
+                    }
+                },
+            },
+            stitches: [
+                {
+                    parentType: "ListOfStrings",
+                    fieldName: "list2",
+                    resolver: {
+                        datasource: "basic",
+                        query: "listOfStrings",
+                        forEach: (parent, vars) => parent.list,
+                    }
+                },
+            ]
+        }
+
+        const gqlQuery = `
+        {
+            listOfStrings {
+                list
+                list2 {
+                    staticString
+                }
+            }
+        }`
+
+        return worldql.buildGqlSchema(wqlConf).then(gqlSchema => {
+            return GraphQL.graphql({
+                schema: gqlSchema,
+                source: gqlQuery,
+                // variableValues: gqlVariables
+                contextValue: {}
+            }).then(gqlResponse => {
+                expect(gqlResponse).toMatchObject({
+                    data: {
+                        "listOfStrings": {
+                            "list": [
+                                "a",
+                                "ab",
+                                "abc",
+                                "abcd"
+                            ],
+                            "list2": [
+                                {
+                                    "staticString": "a Static string"
+                                },
+                                {
+                                    "staticString": "a Static string"
+                                },
+                                {
+                                    "staticString": "a Static string"
+                                },
+                                {
+                                    "staticString": "a Static string"
+                                }
+                            ]
+                        }
+                    }
                 })
             })
         })
