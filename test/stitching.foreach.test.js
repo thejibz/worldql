@@ -226,7 +226,7 @@ describe("forEach in stitching", () => {
                 expect(gqlResponse).toMatchObject({
                     errors:
                         [{
-                            message: `forEach option for stitched field "length" doesn't resolve to an array."`
+                            message:`Unexpected error value: "forEach option for stitched field \\"length\\" doesn't resolve to an array.\\""`
                         }],
                 })
             })

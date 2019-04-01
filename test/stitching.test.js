@@ -339,7 +339,7 @@ describe("Test the worldql", () => {
                 expect(gqlResponse).toMatchObject({
                     "errors": [
                         {
-                            message: "ReferenceError: zealit: property 'DONT_EXIST' is nonexistent. Check that the parent object fetch it and that there is no typo in the stitching configuration."
+                            message: `Unexpected error value: "ReferenceError: zealit: property 'DONT_EXIST' is nonexistent. Check that the parent object fetch it and that there is no typo in the stitching configuration."`
                         }
                     ]
                 })
@@ -408,7 +408,7 @@ describe("Test the worldql", () => {
                 expect(gqlResponse).toMatchObject({
                     errors: [
                         {
-                            message: "ReferenceError: zealit: property 'DONT_EXIST' is nonexistent. Check that it is in the query's variables and that there is no typo in the stitching configuration."
+                            message: `Unexpected error value: "ReferenceError: zealit: property 'DONT_EXIST' is nonexistent. Check that it is in the query's variables and that there is no typo in the stitching configuration."`
                         }
                     ]
                 })

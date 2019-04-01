@@ -1,6 +1,6 @@
 {
   "name": "worldql-core",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "main": "src/worldql-core.js",
   "files": [
     "/src"
@@ -24,7 +24,7 @@
     "is_js": "^0.9.0",
     "mysql": "^2.16.0",
     "node-fetch": "^2.3.0",
-    "oasgraph-jibz": "0.14.1",
+    "oasgraph-jibz": "0.14.2",
     "swagger-parser": "^5.0.0",
     "zealit": "^2.4.1"
   },
