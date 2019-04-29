@@ -96,7 +96,7 @@ const WorldQL = (function () {
 
                         let resolver = {}
 
-                        if (!!stitch.resolver.forEach) {
+                        if (stitch.resolver.forEach) {
                             const values = stitch.resolver.forEach(parent, info.variableValues)
                            
                             if (is.not.array(values)) {
@@ -119,7 +119,7 @@ const WorldQL = (function () {
                         } else {
                             let stitchArgs = {}
 
-                            if (!!stitch.resolver.args && is.not.empty(stitch.resolver.args)) {
+                            if (stitch.resolver.args && is.not.empty(stitch.resolver.args)) {
                                 stitchArgs = _buildStitchArgs(stitch.resolver.args, parent, info.variableValues)
                             }
 
