@@ -50,30 +50,22 @@ const WorldQL = (function () {
         })
     }
 
-    function _buildStitches(stitches, wqlSchemas) {
-        if (is.not.array(stitches) || is.not.array(wqlSchemas)) {
+    function _buildStitches(finalBaseSchema, stitches) {
+        if (!finalBaseSchema) {
+            throw (`No schema provided for stitching`)
+        }
+        if (is.not.array(stitches)) {
             return []
         }
 
         return stitches.map(stitch => {
-            let remoteSchema = wqlSchemas
-                // [ { datasourceName1: GQLSchema...}, { datasourceName2: GQLSchema...}, ...]
-                .find(wqlSchema => !!wqlSchema[stitch.resolver.datasource])
-            /* { datasourceName1: GQLSchema... } */
-            if (!remoteSchema) {
-                throw (`Datasource "${stitch.resolver.datasource}" not found`)
-            }
-
-            remoteSchema = remoteSchema[stitch.resolver.datasource]
-            // { GQLSchema... }
-
-            const remoteQuery = remoteSchema.getQueryType().getFields()[stitch.resolver.query]
+            const remoteQuery = finalBaseSchema.getQueryType().getFields()[stitch.resolver.query]
             if (!remoteQuery) {
-                throw (`Query "${stitch.resolver.query}" not found in datasource "${stitch.resolver.datasource}"`)
+                throw (`Query "${stitch.resolver.query}" not found in final schema"`)
             }
 
             // Add the new field of type T to the parent
-            // In case of forEach: T becomes [T]
+            // In case of "forEach" present: T becomes [T]
             const linkTypeDef = `
                     extend type ${stitch.parentType} {
                         ${stitch.fieldName}: ${!stitch.resolver.forEach ? remoteQuery.type.toString() : `[${remoteQuery.type.toString()}]`}
@@ -85,7 +77,7 @@ const WorldQL = (function () {
                         // Define the internal function that will build resolver (avoid code duplication)
                         const __buildResolver = (stitchArgs) => {
                             return info.mergeInfo.delegateToSchema({
-                                schema: remoteSchema,
+                                schema: finalBaseSchema,
                                 operation: "query",
                                 fieldName: remoteQuery.name,
                                 args: stitchArgs,
@@ -98,7 +90,7 @@ const WorldQL = (function () {
 
                         if (stitch.resolver.forEach) {
                             const values = stitch.resolver.forEach(parent, info.variableValues)
-                           
+
                             if (is.not.array(values)) {
                                 throw (`forEach option for stitched field "${stitch.fieldName}" doesn't resolve to an array."`)
                             }
@@ -109,7 +101,7 @@ const WorldQL = (function () {
 
                                     if (!!stitch.resolver.args && is.not.empty(stitch.resolver.args)) {
                                         stitchArgs = _buildStitchArgs(stitch.resolver.args, parent, info.variableValues, value)
-                                    } 
+                                    }
 
                                     return stitchArgs
                                 }).map(stitchArgs => {
@@ -164,27 +156,36 @@ const WorldQL = (function () {
         return args
     }
 
+    function __buildFinalBaseSchema(wqlSchemas) {
+        const schemas = wqlSchemas
+            // [ { datasourceName1: GQLSchema...}, { datasourceName2: GQLSchema...}, ...]
+            .map(wqlSchema => Object.values(wqlSchema))
+            // [ [ GQLSchema {...} ], [ GQLSchema {...} ], ...]
+            .reduce((acc, gqlSchema) => acc.concat(gqlSchema), []) // [ GQLSchema {...}, GQLSchema {...}, ...]
+
+        return gqltools.mergeSchemas({
+            schemas: schemas,
+        })
+    }
+
     // public interfaces
     return {
         buildGqlSchema: function (wqlConf) {
             const wqlSchemas = _createGqlSchemasFromDs(wqlConf.datasources)
 
             const finalSchema = Promise.all(wqlSchemas).then(wqlSchemas => {
-                const resolvers = []
-                const schemas = wqlSchemas
-                    // [ { datasourceName1: GQLSchema...}, { datasourceName2: GQLSchema...}, ...]
-                    .map(wqlSchema => Object.values(wqlSchema))
-                    // [ [ GQLSchema {...} ], [ GQLSchema {...} ], ...]
-                    .reduce((acc, gqlSchema) => acc.concat(gqlSchema), []) // [ GQLSchema {...}, GQLSchema {...}, ...]
+                const finalBaseSchema = __buildFinalBaseSchema(wqlSchemas)
 
-                const stitches = _buildStitches(wqlConf.stitches, wqlSchemas)
+                const stitches = _buildStitches(finalBaseSchema, wqlConf.stitches)
+                const linkTypeDefs = []
+                const resolvers = []
                 stitches.map(stitch => {
-                    schemas.push(stitch.linkTypeDef)
+                    linkTypeDefs.push(stitch.linkTypeDef)
                     resolvers.push(stitch.resolver)
                 })
 
                 return gqltools.mergeSchemas({
-                    schemas: schemas,
+                    schemas: [finalBaseSchema, linkTypeDefs].flat(),
                     resolvers: resolvers
                 })
             })
