@@ -1,6 +1,6 @@
 {
   "name": "worldql-core",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "main": "src/worldql-core.js",
   "files": [
     "/src"
