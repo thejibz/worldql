@@ -1,6 +1,6 @@
 {
   "name": "worldql-core",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "main": "src/worldql-core.js",
   "files": [
     "/src"
@@ -15,7 +15,6 @@
     "apollo-link-http": "1.5.7",
     "debug": "4.0.0",
     "elasticsearch": "15.2.0",
-    "graphql": "14.0.2",
     "graphql-compose": "7.0.4",
     "graphql-compose-elasticsearch": "4.0.4",
     "graphql-compose-mysql": "0.0.6",
@@ -33,7 +32,11 @@
     "eslint": "5.8.0",
     "eslint-plugin-jest": "21.26.2",
     "express-graphql": "0.7.1",
-    "jest": "23.6.0"
+    "jest": "23.6.0",
+    "graphql": "14.0.2"
+  },
+  "peerDependencies": {
+    "graphql": "^14.0.0"
   },
   "scripts": {
     "test": "DEBUG='worldql-core' jest --forceExit --detectOpenHandles",
