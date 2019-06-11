@@ -11,6 +11,12 @@ services:
     ports:
       - 9200:9200
     command: bash -c 'chmod +x /tmp/setup/elasticsearch.setup.sh && (/tmp/setup/elasticsearch.setup.sh&) && /docker-entrypoint.sh elasticsearch'
+    deploy:
+      resources:
+        limits:
+          memory: 4000m
+        reservations:
+          memory: 2000m
 
   # postgres:
   #   image: postgres:11

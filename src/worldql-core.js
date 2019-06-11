@@ -92,7 +92,7 @@ const WorldQL = (function () {
                             const values = stitch.resolver.forEach(parent, info.variableValues)
 
                             if (is.not.array(values)) {
-                                throw (`forEach option for stitched field "${stitch.fieldName}" doesn't resolve to an array."`)
+                                throw (`forEach option for stitched field "${stitch.fieldName}" doesn't resolve to an array.`)
                             }
 
                             resolver = Promise.all(
