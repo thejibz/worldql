@@ -36,10 +36,10 @@ services:
       - mysql:/var/lib/mysql
     command: bash -c 'chmod +x /tmp/setup/mysql.setup.sh && (/tmp/setup/mysql.setup.sh&) && /entrypoint.sh mysqld'
 
-  adminer:
-    image: adminer
-    ports:
-      - 8085:8080
+  # adminer:
+  #   image: adminer
+  #   ports:
+  #     - 8085:8080
 
   openapi:
     image: swaggerapi/petstore

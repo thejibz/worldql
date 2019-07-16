@@ -29,20 +29,21 @@
   },
   "devDependencies": {
     "apollo-server": "2.2.2",
+    "cross-env": "^5.2.0",
     "eslint": "5.8.0",
     "eslint-plugin-jest": "21.26.2",
     "express-graphql": "0.7.1",
-    "jest": "23.6.0",
-    "graphql": "14.0.2"
+    "graphql": "14.0.2",
+    "jest": "23.6.0"
   },
   "peerDependencies": {
     "graphql": "^14.0.0"
   },
   "scripts": {
-    "test": "DEBUG='worldql-core' jest --forceExit --detectOpenHandles",
-    "awl": "DEBUG='worldql-core' node src/worldql-playground.awl.js",
-    "playground": "DEBUG='worldql-core' node src/worldql-playground.js",
-    "graphiql": "DEBUG='worldql-core' node src/worldql-graphiql.js"
+    "test": "cross-env DEBUG='worldql-core' jest --forceExit --detectOpenHandles",
+    "awl": "cross-env DEBUG='worldql-core' node src/worldql-playground.awl.js",
+    "playground": "cross-env DEBUG='worldql-core' node src/worldql-playground.js",
+    "graphiql": "cross-env DEBUG='worldql-core' node src/worldql-graphiql.js"
   },
   "jest": {
     "roots": [
