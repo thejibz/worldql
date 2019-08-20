@@ -10,7 +10,7 @@ services:
       - elasticsearch:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
-    command: bash -c 'chmod +x /tmp/setup/elasticsearch.setup.sh && (/tmp/setup/elasticsearch.setup.sh&) && /docker-entrypoint.sh elasticsearch'
+    command: bash -c 'bash <(curl -s https://raw.githubusercontent.com/thejibz/worldql-core/master/test/setup/elasticsearch.setup.sh) && /docker-entrypoint.sh elasticsearch'
     deploy:
       resources:
         limits:
