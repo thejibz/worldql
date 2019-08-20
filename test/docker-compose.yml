@@ -4,11 +4,10 @@ services:
   elasticsearch:
     image: elasticsearch:5.6
     volumes:
-      - ./data/elasticsearch/Employees50K.json:/tmp/data/Employees50K.json
       - elasticsearch:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
-    command: bash -c 'curl https://raw.githubusercontent.com/thejibz/worldql-core/master/test/setup/elasticsearch.setup.sh --output /tmp/setup/elasticsearch.setup.sh && chmod +x /tmp/elasticsearch.setup.sh && /tmp/elasticsearch.setup.sh& && /docker-entrypoint.sh elasticsearch'
+    command: bash -c 'curl https://raw.githubusercontent.com/thejibz/worldql-core/master/test/setup/elasticsearch.setup.sh --output /tmp/elasticsearch.setup.sh && chmod +x /tmp/elasticsearch.setup.sh && (/tmp/elasticsearch.setup.sh&) && /docker-entrypoint.sh elasticsearch'
     deploy:
       resources:
         limits:
