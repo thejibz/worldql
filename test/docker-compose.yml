@@ -3,17 +3,17 @@ services:
 
   elasticsearch:
     image: elasticsearch:5.6
-    volumes:
-      - elasticsearch:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
-    command: bash -c 'curl https://raw.githubusercontent.com/thejibz/worldql-core/master/test/setup/elasticsearch.setup.sh --output /tmp/elasticsearch.setup.sh && chmod +x /tmp/elasticsearch.setup.sh && (/tmp/elasticsearch.setup.sh&) && /docker-entrypoint.sh elasticsearch'
-    deploy:
-      resources:
-        limits:
-          memory: 4000m
-        reservations:
-          memory: 2000m
+    volumes:
+      - data:/data/
+      - elasticsearch:/usr/share/elasticsearch/data
+    depends_on:
+      - data
+    environment:
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    entrypoint: sh -c "(/data/worldql/elasticsearch.setup.sh&) && /docker-entrypoint.sh elasticsearch"
+
 
   # postgres:
   #   image: postgres:11
@@ -22,16 +22,16 @@ services:
 
   mysql:
     image: mysql:5.7
-    environment:
-      MYSQL_ROOT_PASSWORD: secret
     ports:
       - 3306:3306
     volumes:
-      - ./data/mysql/test_db:/tmp/data/test_db
-      - ./setup/wait-for-it.sh:/tmp/setup/wait-for-it.sh
-      - ./setup/mysql.setup.sh:/tmp/setup/mysql.setup.sh
+      - data:/data/
       - mysql:/var/lib/mysql
-    command: bash -c 'chmod +x /tmp/setup/mysql.setup.sh && (/tmp/setup/mysql.setup.sh&) && /entrypoint.sh mysqld'
+    depends_on:
+       - data
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+    entrypoint: sh -c "(/data/worldql-core/test/setup/mysql.setup.sh&) && /entrypoint.sh mysqld"
 
   # adminer:
   #   image: adminer
@@ -47,8 +47,14 @@ services:
     image: thejibz/graphql-server-example
     ports:
       - 8090:4000
-  
+
+  data:
+    image: alpine/git
+    volumes:
+      - data:/data
+    entrypoint: sh -c "cd /data && git clone --recurse-submodules https://github.com/thejibz/worldql-core.git && chmod 777 -R /data"
 
 volumes:
+  data:
   mysql:
   elasticsearch:
