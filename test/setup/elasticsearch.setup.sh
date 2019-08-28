@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 # wait for ES to start
-bash /data/worldql-core/test/setup/wait-for-it.sh localhost:9200 --timeout=30 --strict
+chmod +x /data/worldql-core/test/setup/wait-for-it.sh
+ls -lah /data/worldql-core/test/setup/
+/data/worldql-core/test/setup/wait-for-it.sh localhost:9200 --timeout=30 --strict
 
 # load data in ES
 curl -X DELETE "localhost:9200/companydatabase"

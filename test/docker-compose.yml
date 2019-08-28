@@ -13,8 +13,10 @@ services:
     environment:
       ES_JAVA_OPTS: -Xms512m -Xmx512m
     entrypoint: >
-      bash -c "chmod +x /data/worldql-core/test/setup/elasticsearch.setup.sh && 
-      (/data/worldql-core/test/setup/elasticsearch.setup.sh &) &&
+      bash -c "
+      curl -s https://raw.githubusercontent.com/derekmahar/docker-compose-wait-for-file/master/ubuntu-wait-for-file/wait-for-file.sh | 
+      bash -s /data/worldql-core/test/data/mysql/test_db/employees.sql &&
+      (bash /data/worldql-core/test/setup/elasticsearch.setup.sh &) && 
       /docker-entrypoint.sh elasticsearch"
 
 
@@ -55,7 +57,12 @@ services:
     image: alpine/git
     volumes:
       - data:/data
-    entrypoint: sh -c "rm -rf /data/worldql-core && cd /data && git clone --recurse-submodules https://github.com/thejibz/worldql-core.git && chmod 777 -R /data"
+    healthcheck:
+      test: ["CMD", "ls", "/data/worldql-core/test/data/mysql/test_db/employees.sql"]
+      interval: 10s
+      timeout: 1s
+      retries: 6
+    entrypoint: sh -c "cd /data && git clone --recurse-submodules https://github.com/thejibz/worldql-core.git"
 
 volumes:
   data:
