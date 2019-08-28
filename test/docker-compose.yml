@@ -7,12 +7,15 @@ services:
       - 9200:9200
     volumes:
       - data:/data/
-      - elasticsearch:/usr/share/elasticsearch/data
+      - elasticsearch:/usr/share/elasticsearch/datare
     depends_on:
       - data
     environment:
       ES_JAVA_OPTS: -Xms512m -Xmx512m
-    entrypoint: sh -c "(/data/worldql/elasticsearch.setup.sh&) && /docker-entrypoint.sh elasticsearch"
+    entrypoint: >
+      bash -c "chmod +x /data/worldql-core/test/setup/elasticsearch.setup.sh && 
+      (/data/worldql-core/test/setup/elasticsearch.setup.sh &) &&
+      /docker-entrypoint.sh elasticsearch"
 
 
   # postgres:
@@ -25,13 +28,13 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - data:/data/
+      - data:/data
       - mysql:/var/lib/mysql
     depends_on:
        - data
     environment:
       MYSQL_ROOT_PASSWORD: secret
-    entrypoint: sh -c "(/data/worldql-core/test/setup/mysql.setup.sh&) && /entrypoint.sh mysqld"
+    entrypoint: sh -c "ls -lah /data/worldql-core/test/"
 
   # adminer:
   #   image: adminer
@@ -52,7 +55,7 @@ services:
     image: alpine/git
     volumes:
       - data:/data
-    entrypoint: sh -c "cd /data && git clone --recurse-submodules https://github.com/thejibz/worldql-core.git && chmod 777 -R /data"
+    entrypoint: sh -c "rm -rf /data/worldql-core && cd /data && git clone --recurse-submodules https://github.com/thejibz/worldql-core.git && chmod 777 -R /data"
 
 volumes:
   data:
