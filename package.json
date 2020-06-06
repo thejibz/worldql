@@ -28,7 +28,7 @@
     "zealit": "2.4.1"
   },
   "devDependencies": {
-    "apollo-server": "2.2.2",
+    "apollo-server": "2.14.2",
     "cross-env": "^5.2.0",
     "eslint": "5.8.0",
     "eslint-plugin-jest": "21.26.2",
