@@ -22,7 +22,7 @@
     "graphql-tools": "4.0.2",
     "is_js": "0.9.0",
     "mysql": "2.16.0",
-    "node-fetch": "2.3.0",
+    "node-fetch": "2.6.1",
     "oasgraph-jibz": "0.14.2",
     "swagger-parser": "5.0.0",
     "zealit": "2.4.1"
